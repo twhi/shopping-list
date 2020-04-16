@@ -11,10 +11,15 @@
 
     <h1>Your Shopping Lists</h1>
     <hr>
-    {% for shopping_list in shopping_lists %}
+    <h2>Owned lists</h2>
+    {% for shopping_list in shopping_lists.owned_lists %}
         <a href='{% url "list_detail" shopping_list.pk %}'>{{ shopping_list }}</p>
     {% endfor %}
+    <a href="{% url 'create_list' %}">Create new shopping list</a>
     <hr>
-    <a href="{% url 'create_list' %}">Create new shopping list</p>
+    <h2>Shared lists</h2>
+    {% for shopping_list in shopping_lists.guest_lists %}
+        <a href='{% url "list_detail" shopping_list.pk %}'>{{ shopping_list }}</p>
+    {% endfor %}
     
 {% endblock content %}

@@ -10,6 +10,7 @@ User.add_to_class('__str__', get_email)
 class List(models.Model):
     name = models.CharField(max_length=256)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    guest = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='lists')
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 

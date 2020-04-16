@@ -9,6 +9,16 @@
         <a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
     {% endif %}
 
+    <form method="post" id="email-form">
+        {% csrf_token %}
+        <table>
+        <tr>
+            <td>{{ invite_user_form.email_address }}</td>
+            <td><input type="submit" value="Invite User"></td>
+        </tr>
+        </table>
+    </form>
+
     <h1>{{ shopping_list.name }}</h1>
     <hr>
     <table id='shopping-list'>
@@ -30,8 +40,8 @@
         <form method="post" id="post-form" onsubmit="return false;">
             {% csrf_token %}
             <tr>
-                <td>{{ form.item }}</td>
-                <td>{{ form.quantity }}</td>
+                <td>{{ new_item_form.item }}</td>
+                <td>{{ new_item_form.quantity }}</td>
                 <td><input type="submit" value="Add item"></td>
             </tr>
         </form>

@@ -13,17 +13,17 @@ from django.http import JsonResponse, HttpResponseForbidden
 import json
 from urllib.parse import parse_qs
 
-from .forms import SignUpForm, NewItemForm
+from .forms import SignUpForm, NewItemForm, InviteUserForm
 from .models import List, Item
 
 
 class UserOwnsShoppingListMixin(UserPassesTestMixin):
     def test_func(self):
         """
-        Checks if the current user is the list owner. 
+        Checks if the current user is the list owner, or is a guest.
         Denies access otherwise.
         """
-        return self.request.user == self.get_object().owner
+        return self.request.user == self.get_object().owner or self.request.user in self.get_object().guest.all()
 
 
 class Registration(CreateView):
@@ -45,7 +45,11 @@ class ShoppingListView(LoginRequiredMixin, ListView):
     model = List
 
     def get_queryset(self):
-        return List.objects.filter(owner=self.request.user)
+        queryset = {
+            'owned_lists': List.objects.filter(owner=self.request.user),
+            'guest_lists': List.objects.filter(guest__in=[self.request.user])
+        }
+        return queryset
 
 
 class ShoppingListDisplay(LoginRequiredMixin, UserOwnsShoppingListMixin, DetailView):
@@ -55,9 +59,9 @@ class ShoppingListDisplay(LoginRequiredMixin, UserOwnsShoppingListMixin, DetailV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['items'] = Item.objects.filter(
-            parent_list=self.object).order_by('date_created')
-        context['form'] = NewItemForm()
+        context['items'] = Item.objects.filter(parent_list=self.object).order_by('date_created')
+        context['new_item_form'] = NewItemForm()
+        context['invite_user_form'] = InviteUserForm()
         return context
 
 

@@ -18,6 +18,15 @@ class NewItemForm(forms.Form):
         }
     ))
 
+class InviteUserForm(forms.Form):
+    email_address = forms.EmailField(max_length=256, widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': 'Email Address',
+            'id': 'email-address',
+        }
+    ))
+
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=False)
     last_name = forms.CharField(max_length=30, required=False)
