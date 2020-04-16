@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
+    {% else %}
+        <a href="{% url 'login' %}?next={{ request.path }}">Click here to log in</a>
+        <a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
+    {% endif %}
+
+    <h1>{{ shopping_list.name }}</h1>
+    <hr>
+    <table id='shopping-list'>
+        <form>
+            {% csrf_token %}
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td class='close-button'>✖</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </form>
+    </table>
+    <hr>
+    <table>
+        <form method="post" id="post-form" onsubmit="return false;">
+            {% csrf_token %}
+            <tr>
+                <td>{{ form.item }}</td>
+                <td>{{ form.quantity }}</td>
+                <td><input type="submit" value="Add item"></td>
+            </tr>
+        </form>
+    </table>
+    
+{% endblock content %}
+
+{% block scripts %}
+<script src="{% static 'app_static/addItem.js' %}"></script>
+{% endblock scripts %}

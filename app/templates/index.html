@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
+    {% else %}
+        <a href="{% url 'login' %}?next={{ request.path }}">Click here to log in</a>
+        <a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
+    {% endif %}
+
+    <h1>Your Shopping Lists</h1>
+    <hr>
+    {% for shopping_list in shopping_lists %}
+        <a href='{% url "list_detail" shopping_list.pk %}'>{{ shopping_list }}</p>
+    {% endfor %}
+    <hr>
+    <a href="{% url 'create_list' %}">Create new shopping list</p>
+    
+{% endblock content %}

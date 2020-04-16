@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Shopping Mate</title>
+    <script src="https://kit.fontawesome.com/f4c7f2a9d8.js" crossorigin="anonymous"></script>
+    <link rel="shortcut icon" type="image/png" href="{% static 'base_static/favicon.png' %}" />
+    <link rel="stylesheet" href="{% static 'base_static/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'base_static/base.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Lato|Staatliches&display=swap" rel="stylesheet">
+
+    {% block styles %}
+    {% endblock styles %}
+</head>
+
+<body class="page">
+
+    <main class="page-content" role="main">
+
+        <section class="content">
+            {% block content %}{% endblock content %}
+        </section>
+
+    </main>
+    {% include 'footer.html' %}
+
+
+    <script src="{% static 'base_static/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static 'base_static/popper.min.js' %}"></script>
+    <script src="{% static 'base_static/bootstrap/js/bootstrap.min.js' %}"></script>
+    {% block scripts %}
+    {% endblock scripts %}
+</body>
+
+</html>
