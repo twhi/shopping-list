@@ -17,6 +17,15 @@ from .forms import SignUpForm, NewItemForm
 from .models import List, Item
 
 
+class UserOwnsShoppingListMixin(UserPassesTestMixin):
+    def test_func(self):
+        """
+        Checks if the current user is the list owner. 
+        Denies access otherwise.
+        """
+        return self.request.user == self.get_object().owner
+
+
 class Registration(CreateView):
     template_name = 'registration/registration.html'
     form_class = SignUpForm
@@ -39,17 +48,10 @@ class ShoppingListView(LoginRequiredMixin, ListView):
         return List.objects.filter(owner=self.request.user)
 
 
-class ShoppingListDisplay(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class ShoppingListDisplay(LoginRequiredMixin, UserOwnsShoppingListMixin, DetailView):
     template_name = 'detail.html'
     context_object_name = 'shopping_list'
     model = List
-
-    def test_func(self):
-        """
-        Checks if the current user is the list owner. 
-        Denies access otherwise.
-        """
-        return self.request.user == self.get_object().owner
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -59,17 +61,10 @@ class ShoppingListDisplay(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return context
 
 
-class ShoppingListAddItem(SingleObjectMixin, UserPassesTestMixin, FormView):
+class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView):
     template_name = 'detail.html'
     form_class = NewItemForm
     model = List
-
-    def test_func(self):
-        """
-        Checks if the current user is the list owner. 
-        Denies access otherwise.
-        """
-        return self.request.user == self.get_object().owner
 
     def post(self, request, *args, **kwargs):
 
@@ -88,17 +83,10 @@ class ShoppingListAddItem(SingleObjectMixin, UserPassesTestMixin, FormView):
             return JsonResponse(data)
 
 
-class ShoppingListRemoveItem(UserPassesTestMixin, DeleteView):
+class ShoppingListRemoveItem(UserOwnsShoppingListMixin, DeleteView):
     template_name = 'detail.html'
     form_class = NewItemForm
     model = List
-
-    def test_func(self):
-        """
-        Checks if the current user is the list owner. 
-        Denies access otherwise.
-        """
-        return self.request.user == self.get_object().owner
 
     def delete(self, request, *args, **kwargs):
         item_name = request.GET['itemName']
