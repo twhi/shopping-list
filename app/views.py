@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView, CreateView, ListView, DetailView, FormView, DeleteView
+from django.views.generic import CreateView, ListView, DetailView, FormView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -71,20 +71,18 @@ class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView
     model = List
 
     def post(self, request, *args, **kwargs):
-
-        if request.is_ajax():
-            new_item_data = json.loads(request.POST.get('selected'))
-            item = new_item_data['item']
-            quantity = new_item_data['quantity']
-            i = Item.objects.create(
-                name=item,
-                quantity=quantity,
-                parent_list=self.get_object(),
-                found=False,
-            )
-            i.save()
-            data = {'item': item, 'quantity': quantity}
-            return JsonResponse(data)
+        new_item_data = json.loads(request.POST.get('selected'))
+        item = new_item_data['itemName']
+        quantity = new_item_data['quantity']
+        i = Item.objects.create(
+            name=item,
+            quantity=quantity,
+            parent_list=self.get_object(),
+            found=False,
+        )
+        i.save()
+        data = {'item': item, 'quantity': quantity}
+        return JsonResponse(data)
 
 
 class ShoppingListRemoveItem(UserOwnsShoppingListMixin, DeleteView):
@@ -105,6 +103,25 @@ class ShoppingListRemoveItem(UserOwnsShoppingListMixin, DeleteView):
         return JsonResponse(payload)
 
 
+class ShoppingListFoundItem(UserOwnsShoppingListMixin, UpdateView):
+    template_name = 'detail.html'
+    model = List
+
+    def post(self, request, *args, **kwargs):
+        selected_item = json.loads(request.POST.get('selected'))
+        item_name = selected_item['itemName']
+        quantity = selected_item['quantity']
+        i = Item.objects.filter(
+            name=item_name,
+            quantity=quantity,
+            parent_list=self.get_object()
+        )[0]
+        i.found = not i.found
+        i.save()
+        payload = {'update': 'ok'}
+        return JsonResponse(payload)
+
+
 class ShoppingListDetailView(View):
 
     def get(self, request, *args, **kwargs):
@@ -112,7 +129,11 @@ class ShoppingListDetailView(View):
         return view(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        view = ShoppingListAddItem.as_view()
+        request_type = request.POST.get('requestType')
+        if request_type == 'new':
+            view = ShoppingListAddItem.as_view()
+        elif request_type == 'found':
+            view = ShoppingListFoundItem.as_view()
         return view(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
