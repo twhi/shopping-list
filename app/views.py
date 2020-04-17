@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.views import View
 from django.http import JsonResponse, HttpResponseForbidden
+from django.contrib.auth import get_user_model
+from django.contrib import messages
 
 import json
 from urllib.parse import parse_qs
@@ -152,3 +154,37 @@ class CreateNewListView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse('list_detail', kwargs={'pk': self.object.pk})
+
+
+class InviteToListView(SingleObjectMixin, FormView):
+    template_name = 'detail.html'
+    form_class = InviteUserForm
+    model = List
+
+    def post(self, request, *args, **kwargs):
+        
+        email_address = request.POST.get('email_address')
+        user_model = get_user_model()
+        
+        try:
+            user = user_model.objects.get(email=email_address)
+        except user_model.DoesNotExist:
+            """
+            User doesn't exist. Need to figure out some sort of
+            invite/registration process from here. Gonna be complex.
+            """
+            messages.add_message(self.request, messages.ERROR, '{0} not registered on the website.'.format(email_address))
+            return super().post(self, request, *args, **kwargs)
+        
+        current_list = self.get_object()
+        if current_list.owner.email == email_address:
+            messages.add_message(self.request, messages.ERROR, '{0} owns this list.'.format(email_address))
+        else:
+            current_list.guest.add(user)
+            messages.add_message(self.request, messages.SUCCESS, '{0} successfully added to list.'.format(user))
+
+        return super().post(self, request, *args, **kwargs)
+        
+
+    def get_success_url(self):
+        return reverse('list_detail', kwargs=self.kwargs)

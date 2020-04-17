@@ -15,7 +15,7 @@
     {% for shopping_list in shopping_lists.owned_lists %}
         <a href='{% url "list_detail" shopping_list.pk %}'>{{ shopping_list }}</p>
     {% endfor %}
-    <a href="{% url 'create_list' %}">Create new shopping list</a>
+    <a class="btn btn-success" href="{% url 'create_list' %}">Create new shopping list</a>
     <hr>
     <h2>Shared lists</h2>
     {% for shopping_list in shopping_lists.guest_lists %}

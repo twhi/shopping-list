@@ -2,59 +2,77 @@
 {% load static %}}
 
 {% block content %}
-    {% if user.is_authenticated %}
-        <p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
-    {% else %}
-        <a href="{% url 'login' %}?next={{ request.path }}">Click here to log in</a>
-        <a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
-    {% endif %}
-    <hr>
-    <a href="{% url 'home' %}"><-- Back to Homepage</a>
-    <hr>
-    <form method="post" id="email-form">
-        {% csrf_token %}
-        <table>
-        <tr>
-            <td>{{ invite_user_form.email_address }}</td>
-            <td><input type="submit" value="Invite User"></td>
-        </tr>
+{% if user.is_authenticated %}
+<p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
+{% else %}
+<a href="{% url 'login' %}?next={{ request.path }}">Click here to log in</a>
+<a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
+{% endif %}
+<hr>
+<a href="{% url 'home' %}">
+    <-- Back to Homepage</a>
+        <hr>
+
+        {% if user == shopping_list.owner %}
+
+            {% block messages %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                            <a class="close" data-dismiss="alert">×</a>
+                            {{ message|safe }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endblock %}
+
+            <form action="/invite_user/{{shopping_list.pk}}" method="post" id="email-form">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <td>{{ invite_user_form.email_address }}</td>
+                        <td><input type="submit" value="Invite User"></td>
+                    </tr>
+                </table>
+            </form>
+
+            <hr>
+
+        {% endif %}
+
+        <h1>{{ shopping_list.name }}</h1>
+        <hr>
+        <table id='shopping-list'>
+            <form>
+                {% csrf_token %}
+                <tbody>
+                    {% for item in items %}
+                    {% if item.found %}<tr class="found-item">{% else %}
+                    <tr>{% endif %}
+                        <td class="click-area">{{ item.name }}</td>
+                        <td class="click-area">{{ item.quantity }}</td>
+                        <td class="close-button">✖</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </form>
         </table>
-    </form>
 
-    <hr>
+        <hr>
 
-    <h1>{{ shopping_list.name }}</h1>
-    <hr>
-    <table id='shopping-list'>
-        <form>
-            {% csrf_token %}
-            <tbody>
-                {% for item in items %}
-                {% if item.found %}<tr class="found-item">{% else %}<tr>{% endif %}
-                    <td class="click-area">{{ item.name }}</td>
-                    <td class="click-area">{{ item.quantity }}</td>
-                    <td class="close-button">✖</td>
+        <table>
+            <form method="post" id="post-form" onsubmit="return false;">
+                {% csrf_token %}
+                <tr>
+                    <td>{{ new_item_form.item }}</td>
+                    <td>{{ new_item_form.quantity }}</td>
+                    <td><input type="submit" value="Add item"></td>
                 </tr>
-                {% endfor %}
-            </tbody>
-        </form>
-    </table>
+            </form>
+        </table>
 
-    <hr>
+        {% endblock content %}
 
-    <table>
-        <form method="post" id="post-form" onsubmit="return false;">
-            {% csrf_token %}
-            <tr>
-                <td>{{ new_item_form.item }}</td>
-                <td>{{ new_item_form.quantity }}</td>
-                <td><input type="submit" value="Add item"></td>
-            </tr>
-        </form>
-    </table>
-    
-{% endblock content %}
-
-{% block scripts %}
-<script src="{% static 'app_static/addItem.js' %}"></script>
-{% endblock scripts %}
+        {% block scripts %}
+        <script src="{% static 'app_static/addItem.js' %}"></script>
+        {% endblock scripts %}
