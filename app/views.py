@@ -1,22 +1,23 @@
-from django.shortcuts import render
-from django.views.generic import CreateView, ListView, DetailView, FormView, DeleteView, UpdateView
+from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic.detail import SingleObjectMixin
+from django.http import JsonResponse, HttpResponseForbidden, Http404
+from django.shortcuts import render
+from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils.crypto import get_random_string
-from django.contrib.auth.models import User
-from django.urls import reverse
 from django.views import View
-from django.http import JsonResponse, HttpResponseForbidden
-from django.contrib.auth import get_user_model
-from django.contrib import messages
+from django.views.generic import CreateView, ListView, DetailView, FormView, DeleteView, UpdateView
+from django.views.generic.detail import SingleObjectMixin
 
-import json
-from urllib.parse import parse_qs
-
-from .forms import SignUpForm, NewItemForm, InviteUserForm
 from .models import List, Item
+from .forms import SignUpForm, NewItemForm, InviteUserForm
+
+from urllib.parse import parse_qs
+import json
 
 
 class UserOwnsShoppingListMixin(UserPassesTestMixin):
@@ -26,6 +27,18 @@ class UserOwnsShoppingListMixin(UserPassesTestMixin):
         Denies access otherwise.
         """
         return self.request.user == self.get_object().owner or self.request.user in self.get_object().guest.all()
+
+
+class ShoppingListDeleteView(UserOwnsShoppingListMixin, DeleteView):
+    
+    model = List
+    success_url = reverse_lazy('home')
+
+    def get_object(self, queryset=None):
+        obj = super().get_object()
+        if not obj.owner == self.request.user:
+            raise Http404
+        return obj
 
 
 class Registration(CreateView):
@@ -61,7 +74,8 @@ class ShoppingListDisplay(LoginRequiredMixin, UserOwnsShoppingListMixin, DetailV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['items'] = Item.objects.filter(parent_list=self.object).order_by('date_created')
+        context['items'] = Item.objects.filter(
+            parent_list=self.object).order_by('date_created')
         context['new_item_form'] = NewItemForm()
         context['invite_user_form'] = InviteUserForm()
         return context
@@ -83,7 +97,11 @@ class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView
             found=False,
         )
         i.save()
-        data = {'item': item, 'quantity': quantity}
+        data = {
+            'item': item,
+            'quantity': quantity,
+            'date_created': naturaltime(i.date_created),
+        }
         return JsonResponse(data)
 
 
@@ -162,10 +180,10 @@ class InviteToListView(SingleObjectMixin, FormView):
     model = List
 
     def post(self, request, *args, **kwargs):
-        
+
         email_address = request.POST.get('email_address')
         user_model = get_user_model()
-        
+
         try:
             user = user_model.objects.get(email=email_address)
         except user_model.DoesNotExist:
@@ -173,18 +191,26 @@ class InviteToListView(SingleObjectMixin, FormView):
             User doesn't exist. Need to figure out some sort of
             invite/registration process from here. Gonna be complex.
             """
-            messages.add_message(self.request, messages.ERROR, '{0} not registered on the website.'.format(email_address))
+            
+            messages.add_message(self.request, messages.ERROR,
+                                 '{0} not registered on the website. Attempting invite.'.format(email_address))
+            
+            from invitations.utils import get_invitation_model
+            Invitation = get_invitation_model()
+            invite = Invitation.create(email_address, inviter=request.user)
+            invite.send_invitation(request)            
             return super().post(self, request, *args, **kwargs)
-        
+
         current_list = self.get_object()
         if current_list.owner.email == email_address:
-            messages.add_message(self.request, messages.ERROR, '{0} owns this list.'.format(email_address))
+            messages.add_message(self.request, messages.ERROR,
+                                 '{0} owns this list.'.format(email_address))
         else:
             current_list.guest.add(user)
-            messages.add_message(self.request, messages.SUCCESS, '{0} successfully added to list.'.format(user))
+            messages.add_message(self.request, messages.SUCCESS,
+                                 '{0} successfully added to list.'.format(user))
 
         return super().post(self, request, *args, **kwargs)
-        
 
     def get_success_url(self):
         return reverse('list_detail', kwargs=self.kwargs)

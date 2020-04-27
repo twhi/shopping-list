@@ -1,0 +1,22 @@
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+<form action="/invite_user/{{shopping_list.pk}}" method="post" id="email-form">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td>{{ invite_user_form.email_address }}</td>
+            <td><input type="submit" value="Invite User"></td>
+        </tr>
+    </table>
+</form>
+
+<hr>

@@ -1,0 +1,94 @@
+.page {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: #ddbd3d;
+}
+
+p,
+a,
+h1,
+h2,
+h3,
+h4 {
+    color: #011936;
+}
+
+h1 {
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+h2 {
+    font-weight: 100;
+    /* text-transform: uppercase; */
+    font-family: 'Lato', sans-serif;
+}
+
+.page-content {
+    flex: 1;
+}
+
+.action-list-group {
+    position: relative;
+}
+
+.index-list-title {
+    color: #f4fffd
+}
+
+.action-list-group .list-group-item {
+    padding: 0;
+    margin: 10px;
+    background: #465362;
+}
+
+.action-list-group .list-group-item>a.list-group-link {
+    display: block;
+    /* inherit from .list-group-item */
+    padding: 20px 15px;
+    color: #171d1c;
+}
+
+
+/* re-add the link styling */
+
+.action-list-group .list-group-item>a.list-group-link:hover {
+    background: #f5f5f5;
+    text-decoration: none;
+}
+
+.action-list-group .btn {
+    position: absolute;
+    right: 10px;
+    margin-top: 40px;
+    top: 0;
+}
+
+.footer {
+    height: 20px;
+    background-color: #171d1c;
+    color: #fff;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    position: relative;
+    padding: 5px 10px;
+}
+
+tr.found-item td:after {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    border-bottom: 1px solid #111;
+    width: 100%;
+}
+
+.inline-table {
+    display: inline-block;
+}

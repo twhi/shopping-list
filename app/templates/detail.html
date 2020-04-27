@@ -1,78 +1,69 @@
 {% extends 'base.html' %}
-{% load static %}}
+{% load static %}
+{% load humanize %}
 
 {% block content %}
-{% if user.is_authenticated %}
-<p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
-{% else %}
-<a href="{% url 'login' %}?next={{ request.path }}">Click here to log in</a>
-<a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
-{% endif %}
-<hr>
-<a href="{% url 'home' %}">
-    <-- Back to Homepage</a>
-        <hr>
+    
+    {% if user.is_authenticated %}
+        <p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
+    {% else %}
+        <a href="{% url 'login' %}?next={{ request.path }}">Click here to log in</a>
+        <a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
+    {% endif %}
+    
+    <hr>
+    
+    <a href="{% url 'home' %}">Back to Homepage</a>
+    
+    <hr>
 
-        {% if user == shopping_list.owner %}
+    {% if user == shopping_list.owner %}
+        {% include 'invite_form.html' %}
+    {% endif %}
 
-            {% block messages %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
-                            <a class="close" data-dismiss="alert">×</a>
-                            {{ message|safe }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endblock %}
-
-            <form action="/invite_user/{{shopping_list.pk}}" method="post" id="email-form">
-                {% csrf_token %}
-                <table>
-                    <tr>
-                        <td>{{ invite_user_form.email_address }}</td>
-                        <td><input type="submit" value="Invite User"></td>
-                    </tr>
-                </table>
-            </form>
-
-            <hr>
-
-        {% endif %}
-
-        <h1>{{ shopping_list.name }}</h1>
-        <hr>
-        <table id='shopping-list'>
-            <form>
-                {% csrf_token %}
-                <tbody>
-                    {% for item in items %}
-                    {% if item.found %}<tr class="found-item">{% else %}
-                    <tr>{% endif %}
-                        <td class="click-area">{{ item.name }}</td>
-                        <td class="click-area">{{ item.quantity }}</td>
-                        <td class="close-button">✖</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </form>
-        </table>
-
-        <hr>
-
-        <table>
-            <form method="post" id="post-form" onsubmit="return false;">
-                {% csrf_token %}
+    <h1>{{ shopping_list.name }}</h1>
+    <hr>
+    <table id='shopping-list' class='inline-table'>
+        <tbody>
+            {% for item in items %}
+            {% if item.found %}<tr class="found-item click-area">{% else %}<tr class="click-area">{% endif %}
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.date_created|naturaltime }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <table id='close-buttons' class='inline-table'>
+        <form>
+            {% csrf_token %}
+            <tbody>
+                {% for item in items %}
                 <tr>
-                    <td>{{ new_item_form.item }}</td>
-                    <td>{{ new_item_form.quantity }}</td>
-                    <td><input type="submit" value="Add item"></td>
+                    <td class="close-button">✖</td>
                 </tr>
-            </form>
-        </table>
+                {% endfor %}
+            </tbody>
+        </form>
+    </table>
 
-        {% endblock content %}
+    <hr>
 
-        {% block scripts %}
-        <script src="{% static 'app_static/addItem.js' %}"></script>
-        {% endblock scripts %}
+    <table>
+        <form method="post" id="post-form" onsubmit="return false;">
+            {% csrf_token %}
+            <tr>
+                <td>{{ new_item_form.item }}</td>
+                <td>{{ new_item_form.quantity }}</td>
+                <td><input type="submit" value="Add item"></td>
+            </tr>
+        </form>
+    </table>
+
+    <form action="{% url 'delete_list' object.pk %}" method=POST>{% csrf_token %}<button class="btn btn-danger">Delete List</button></form>
+
+{% endblock content %}
+
+{% block scripts %}
+<script src="{% static 'app_static/addItem.js' %}"></script>
+{% endblock scripts %}
