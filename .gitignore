@@ -1,7 +1,8 @@
 static/admin/
 static/app_static/
-static/base_static/bootstrap/
-static/base_static/*.min.js
+*/static/base_static/bootstrap/
+*/static/base_static/*.min.js
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
