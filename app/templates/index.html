@@ -1,8 +1,5 @@
-{% extends 'base.html' %} {% load static %}} {% load humanize %} {% block content %} {% if user.is_authenticated %}
-<p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
-{% else %}
-<a href="{% url 'login' %}?next={{ request.path }}">Click here to log in</a>
-<a href="{% url 'registration' %}?next={{ request.path }}">Register</a> {% endif %}
+{% extends 'base.html' %} {% load static %}} {% load humanize %} {% block content %} 
+
 
 <h1>Your Shopping Lists</h1>
 <hr>

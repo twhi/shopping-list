@@ -1,8 +1,15 @@
+/* Theme colours
+yellow #ffc731
+black #080708
+blue #3772ff
+pink/red #df2935
+grey/white #e6e8e6 */
+
 .page {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
-    background-color: #ddbd3d;
+    background: rgb(255, 255, 255);
 }
 
 p,
@@ -23,6 +30,14 @@ h4 {
     font-weight: 100;
     /* text-transform: uppercase; */
     font-family: 'Lato', sans-serif;
+}
+
+nav {
+    background-color: #ffc731;
+}
+
+.nav-item {
+    color: #080708;
 }
 
 .page-content {

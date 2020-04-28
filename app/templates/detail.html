@@ -3,64 +3,57 @@
 {% load humanize %}
 
 {% block content %}
-    
-    {% if user.is_authenticated %}
-        <p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
-    {% else %}
-        <a href="{% url 'login' %}?next={{ request.path }}">Click here to log in</a>
-        <a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
-    {% endif %}
-    
-    <hr>
-    
-    <a href="{% url 'home' %}">Back to Homepage</a>
-    
-    <hr>
 
-    {% if user == shopping_list.owner %}
-        {% include 'invite_form.html' %}
-    {% endif %}
+<a href="{% url 'home' %}">Back to Homepage</a>
 
-    <h1>{{ shopping_list.name }}</h1>
-    <hr>
-    <table id='shopping-list' class='inline-table'>
+<hr>
+
+{% if user == shopping_list.owner %}
+{% include 'invite_form.html' %}
+{% endif %}
+
+<h1>{{ shopping_list.name }}</h1>
+<hr>
+<table id='shopping-list' class='inline-table'>
+    <tbody>
+        {% for item in items %}
+        {% if item.found %}<tr class="found-item click-area">{% else %}
+        <tr class="click-area">{% endif %}
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.date_created|naturaltime }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<table id='close-buttons' class='inline-table'>
+    <form>
+        {% csrf_token %}
         <tbody>
             {% for item in items %}
-            {% if item.found %}<tr class="found-item click-area">{% else %}<tr class="click-area">{% endif %}
-                <td>{{ item.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.date_created|naturaltime }}</td>
+            <tr>
+                <td class="close-button">✖</td>
             </tr>
             {% endfor %}
         </tbody>
-    </table>
-    <table id='close-buttons' class='inline-table'>
-        <form>
-            {% csrf_token %}
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td class="close-button">✖</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </form>
-    </table>
+    </form>
+</table>
 
-    <hr>
+<hr>
 
-    <table>
-        <form method="post" id="post-form" onsubmit="return false;">
-            {% csrf_token %}
-            <tr>
-                <td>{{ new_item_form.item }}</td>
-                <td>{{ new_item_form.quantity }}</td>
-                <td><input type="submit" value="Add item"></td>
-            </tr>
-        </form>
-    </table>
+<table>
+    <form method="post" id="post-form" onsubmit="return false;">
+        {% csrf_token %}
+        <tr>
+            <td>{{ new_item_form.item }}</td>
+            <td>{{ new_item_form.quantity }}</td>
+            <td><input type="submit" value="Add item"></td>
+        </tr>
+    </form>
+</table>
 
-    <form action="{% url 'delete_list' object.pk %}" method=POST>{% csrf_token %}<button class="btn btn-danger">Delete List</button></form>
+<form action="{% url 'delete_list' object.pk %}" method=POST>{% csrf_token %}<button class="btn btn-danger">Delete List</button></form>
 
 {% endblock content %}
 
