@@ -10,7 +10,7 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'base_static/favicon.png' %}" />
     <link rel="stylesheet" href="{% static 'base_static/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'base_static/base.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;900&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;900&display=swap" rel="stylesheet">
 
     {% block styles %}
     {% endblock styles %}
@@ -19,41 +19,22 @@
 <body class="page">
 
     <!-- Navbar Start -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
-        <a class="navbar-brand" href="{% url 'home' %}">{% include 'logo.html' %}</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto">
-
-                {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <p>Logged in as {{ user.email }} <a href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a href="{% url 'registration' %}?next={{ request.path }}">Register</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'login' %}?next={{ request.path }}">Log in</a>
-                </li>
-                {% endif %}
-
-                {% comment %} <li class="nav-item">
-                    <a class="nav-link" href="#">Register</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Login</a>
-                </li>
-
-                {% if request.session.username %}
-                <li class="nav-item">You're currently logged in as {{ request.session.email }}</li>
-                {% endif %} {% endcomment %}
-
-            </ul>
-
-        </div>
+    <nav class="navbar navbar-expand navbar-dark navbar-custom">
+        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'my_lists' %}{% else %}#{% endif %}">{% include 'logo.html' %}</a>
+        <ul class="navbar-nav ml-auto">
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <p>Logged in as {{ user.email }} <a class="black-link" href="{% url 'logout' %}?next={{ request.path }}">(Log out)</a></p>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link black-link" href="{% url 'registration' %}?next={{ request.path }}">Register</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link black-link" href="{% url 'login' %}?next={{ request.path }}">Log in</a>
+            </li>
+            {% endif %}
+        </ul>
     </nav>
     <!-- Navbar End -->
 

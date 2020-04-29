@@ -1,0 +1,40 @@
+{% extends 'base.html' %} {% load static %}} {% load humanize %} {% block content %} 
+
+
+<h1>Your Shopping Lists</h1>
+<hr>
+<h4>Owned lists</h4>
+<div class="row">
+    <div class="col-xl-6">
+        <ul class="list-group action-list-group">
+            {% for shopping_list in shopping_lists.owned_lists %}
+            <li class="list-group-item">
+                <a class="list-group-link" href='{% url "list_detail" shopping_list.pk %}'>
+                    <h4 class="index-list-title">{{ shopping_list }}</h4> <small class="text-muted">Created:
+                        {{ shopping_list.date_created|naturaltime }}</small>
+                </a>
+                <form action="{% url 'delete_list' shopping_list.pk %}" method=POST>{% csrf_token %}<button class="btn btn-sm btn-danger">Delete</button></form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<a class="btn btn-success" href="{% url 'create_list' %}">Create new shopping list</a>
+<hr>
+
+<h4>Shared lists</h4>
+<div class="row">
+    <div class="col-xl-6">
+        <ul class="list-group action-list-group">
+            {% for shopping_list in shopping_lists.guest_lists %}
+            <li class="list-group-item">
+                <a class="list-group-link" href='{% url "list_detail" shopping_list.pk %}'>
+                    <h4 class="index-list-title">{{ shopping_list }}</h4> <small class="text-muted">Created: {{ shopping_list.date_created|naturaltime }}</small>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock content %}

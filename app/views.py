@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils.crypto import get_random_string
 from django.views import View
-from django.views.generic import CreateView, ListView, DetailView, FormView, DeleteView, UpdateView
+from django.views.generic import CreateView, ListView, DetailView, FormView, DeleteView, UpdateView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 
 from .models import List, Item
@@ -32,7 +32,7 @@ class UserOwnsShoppingListMixin(UserPassesTestMixin):
 class ShoppingListDeleteView(UserOwnsShoppingListMixin, DeleteView):
     
     model = List
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('my_lists')
 
     def get_object(self, queryset=None):
         obj = super().get_object()
@@ -54,8 +54,12 @@ class Registration(CreateView):
         return super().form_valid(form)
 
 
-class ShoppingListView(LoginRequiredMixin, ListView):
+class HomepageView(TemplateView):
     template_name = 'index.html'
+
+class ShoppingListView(LoginRequiredMixin, ListView):
+    login_url = ''
+    template_name = 'my_lists.html'
     context_object_name = 'shopping_lists'
     model = List
 

@@ -1,16 +1,21 @@
-/* Theme colours
-yellow #ffc731
-black #080708
-blue #3772ff
-pink/red #df2935
-grey/white #e6e8e6 */
+/* 
+
+=============
+Theme colours
+=============
+yellow      #ffc731
+black       #080708
+blue        #3772ff
+pink/red    #df2935
+grey/white  #e6e8e6
+
+*/
 
 .page {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
-    background: rgb(247,127,0);
-    background: linear-gradient(315deg, rgba(247,127,0,1) 0%, rgba(252,191,73,1) 96%);
+    background: rgb(255, 255, 255);
 }
 
 p,

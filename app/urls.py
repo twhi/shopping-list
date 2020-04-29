@@ -15,10 +15,11 @@ Including another URLconf
 """
 
 from django.urls import path
-from .views import ShoppingListView, ShoppingListDetailView, Registration, CreateNewListView, InviteToListView, ShoppingListDeleteView
+from .views import *
 
 urlpatterns = [
-    path('', ShoppingListView.as_view(), name='home'),
+    path('', HomepageView.as_view(), name='home'),
+    path('my_lists', ShoppingListView.as_view(), name='my_lists'),
     path('register/', Registration.as_view(), name='registration'),
     path('list/<int:pk>', ShoppingListDetailView.as_view(), name='list_detail'),
     path('delete/<int:pk>', ShoppingListDeleteView.as_view(), name='delete_list'),
