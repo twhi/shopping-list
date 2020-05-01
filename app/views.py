@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView
+# from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse, HttpResponseForbidden, Http404
@@ -10,11 +12,13 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils.crypto import get_random_string
 from django.views import View
+from django.forms import ValidationError
 from django.views.generic import CreateView, ListView, DetailView, FormView, DeleteView, UpdateView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
+from django.contrib.auth import login as auth_login
 
 from .models import List, Item
-from .forms import SignUpForm, NewItemForm, InviteUserForm
+from .forms import SignUpForm, NewItemForm, InviteUserForm, LoginForm
 
 from urllib.parse import parse_qs
 import json
@@ -51,11 +55,98 @@ class Registration(CreateView):
         while User.objects.filter(username=random_username):
             random_username = get_random_string(length=32)
         form.instance.username = random_username
+        self.object = form.save()
+        data = {
+            'redirect_url': self.success_url,
+        }
+        return JsonResponse(data)
+
+
+class HomepageDisplayView(TemplateView):
+    template_name = 'index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['login_form'] = LoginForm()
+        context['registration_form'] = SignUpForm()
+        return context
+
+
+class HomepageLoginView(LoginView):
+    """
+    Custom login view.
+    """
+
+    form_class = LoginForm
+    template_name = 'index.html'
+    success_url = reverse_lazy('my_lists')
+
+    def form_valid(self, form):
+        auth_login(self.request, form.get_user())
+        data = {
+            'redirect_url': self.success_url,
+        }
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        response = JsonResponse({
+            'error': 'Unable to log in with the provided credentials.',
+        })
+        response.status_code = 500
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['login_form'] = LoginForm()
+        context['registration_form'] = SignUpForm()
+        return context
+
+
+class HomepageRegistrationView(CreateView):
+    """
+    Custom registration view.
+    """
+
+    form_class = SignUpForm
+    template_name = 'index.html'
+    success_url = reverse_lazy('login')
+
+    def form_invalid(self, form):
+        response = JsonResponse({
+            'error': 'Unable to register in with the provided credentials.',
+        })
+        response.status_code = 500
+        return response
+
+    def form_valid(self, form):
+        random_username = get_random_string(length=32)
+        while User.objects.filter(username=random_username):
+            random_username = get_random_string(length=32)
+        form.instance.username = random_username
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['login_form'] = LoginForm()
+        context['registration_form'] = SignUpForm()
+        return context
 
-class HomepageView(TemplateView):
-    template_name = 'index.html'
+
+class HomepageView(View):
+
+    def get(self, request, *args, **kwargs):
+        view = HomepageDisplayView.as_view()
+        return view(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        request_type = request.POST.get('requestType')
+        if request_type == 'login':
+            view = HomepageLoginView.as_view()
+        elif request_type == 'registration':
+            view = HomepageRegistrationView.as_view()
+        return view(request, *args, **kwargs)
+
+
 
 class ShoppingListView(LoginRequiredMixin, ListView):
     login_url = ''

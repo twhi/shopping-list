@@ -1,0 +1,30 @@
+<!-- Login Modal Start -->
+<div class="modal fade" id="modal-reg-form" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">New user</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body mx-3">
+                {% comment %} <form id="registration" method="POST"> {% endcomment %}
+                <form onsubmit="return false;" id="registration" method="POST">
+                    {% csrf_token %}
+                    {{ registration_form.email }}
+                    {{ registration_form.first_name }}
+                    {{ registration_form.last_name }}
+                    {{ registration_form.password1 }}
+                    {{ registration_form.password2 }}
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button class="btn btn-outline-success btn-green" type="submit" name="registration">Log in</button>
+                    </div>
+                    <div id="reg-error-message"></div>
+                </form>
+
+
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Login Modal End -->

@@ -141,7 +141,7 @@ SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
 TEMPLATE_STRING_IF_INVALID = ''
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/my_lists'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -28,9 +28,42 @@ class InviteUserForm(forms.Form):
     ))
 
 class SignUpForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
-    email = forms.EmailField(max_length=254)
+    email = forms.EmailField(max_length=254,
+        widget= forms.TextInput(attrs={
+            'id': 'reg-email',
+            'class':'form-control',
+            'placeholder': 'Email'
+            })
+        )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'id': 'reg-pass-1',
+            'class': 'form-control',
+            'placeholder':'Password'
+            })
+        )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'id': 'reg-pass-2',
+            'class': 'form-control',
+            'placeholder':'Password Confirmation'
+            })
+        )
+    
+    first_name = forms.CharField(max_length=30, required=False, 
+        widget= forms.TextInput(attrs={
+            'id': 'reg-first-name',
+            'class':'form-control',
+            'placeholder': 'First name (optional)'
+            })
+        )
+    last_name = forms.CharField(max_length=30, required=False, 
+        widget= forms.TextInput(attrs={
+            'id': 'reg-last-name',
+            'class':'form-control',
+            'placeholder': 'Last name (optional)'
+            })
+        )
 
     class Meta:
         model = User
@@ -52,3 +85,19 @@ class SignUpForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        widget= forms.TextInput(attrs={
+            'id': 'login-user',
+            'class':'form-control',
+            'placeholder': 'Email'
+            })
+        )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'id': 'login-pass',
+            'class': 'form-control',
+            'placeholder':'Password'
+            })
+        )

@@ -8,12 +8,71 @@
     <div class="landing-section-text col-md-8">
         <h1 class="">It's just shopping, mate.</h1>
         <p class="lead">Collaborative shopping, made simple.</p>
-        <a class="btn btn-blue">Get Started</a>
-        <p class=""><small><a class="white-link" href="#">Existing user? Log in here.</a></small></p>
+        <a class="btn btn-blue" href="#" data-toggle="modal" data-target="#modal-reg-form">Get Started</a>
+        <p class=""><small><a class="white-link" href="#" data-toggle="modal" data-target="#modal-login-form">Existing user? Log in here.</a></small></p>
+        
     </div>
 </div>
+
+{% include "login_modal.html" %}
+{% include "registration_modal.html" %}
 
 {% endblock content %}
 
 {% block scripts %}
+<script>
+
+// submit login form to server via AJAX
+$(document).on('submit', '#login', function (e) {
+    $.ajax({
+        type: 'POST',
+        url: '',
+        data: {
+            username: $("#login-user").val(),
+            password: $("#login-pass").val(),
+            requestType: 'login',
+            csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+            action: 'post'
+        },
+        success: function (response) {
+            if (response.redirect_url) {
+                window.location.href = response.redirect_url;
+                return
+            }
+        },
+        error: function (data) {
+            $("#login-error-message").text(data.responseJSON.error);
+            $("#login-error-message").addClass("alert alert-danger");
+        },
+    });
+});
+
+// submit registration form to server via AJAX
+$(document).on('submit', '#registration', function (e) {
+    $.ajax({
+        type: 'POST',
+        url: '',
+        data: {
+            email: $("#reg-email").val(),
+            first_name: $("#reg-first-name").val(),
+            last_name: $("#reg-last-name").val(),
+            password1: $("#reg-pass-1").val(),
+            password2: $("#reg-pass-2").val(),
+            requestType: 'registration',
+            csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+            action: 'post'
+        },
+        success: function (response) {
+            if (response.redirect_url) {
+                window.location.href = response.redirect_url;
+                return
+            }
+        },
+        error: function (data) {
+            $("#reg-error-message").text(data.responseJSON.error);
+            $("#reg-error-message").addClass("alert alert-danger");
+        },
+    });
+});
+</script>
 {% endblock scripts %}
