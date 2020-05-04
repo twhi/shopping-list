@@ -1,12 +1,12 @@
 from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 # from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import JsonResponse, HttpResponseForbidden, Http404
+from django.http import JsonResponse, HttpResponseForbidden, Http404, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.urls import reverse_lazy
@@ -43,23 +43,6 @@ class ShoppingListDeleteView(UserOwnsShoppingListMixin, DeleteView):
         if not obj.owner == self.request.user:
             raise Http404
         return obj
-
-
-class Registration(CreateView):
-    template_name = 'registration/registration.html'
-    form_class = SignUpForm
-    success_url = reverse_lazy('login')
-
-    def form_valid(self, form):
-        random_username = get_random_string(length=32)
-        while User.objects.filter(username=random_username):
-            random_username = get_random_string(length=32)
-        form.instance.username = random_username
-        self.object = form.save()
-        data = {
-            'redirect_url': self.success_url,
-        }
-        return JsonResponse(data)
 
 
 class HomepageDisplayView(TemplateView):
@@ -109,21 +92,28 @@ class HomepageRegistrationView(CreateView):
 
     form_class = SignUpForm
     template_name = 'index.html'
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('my_lists')
 
     def form_invalid(self, form):
-        response = JsonResponse({
-            'error': 'Unable to register in with the provided credentials.',
-        })
-        response.status_code = 500
-        return response
+        return HttpResponse(form.errors.as_json(), status=500, content_type='application/json')
 
     def form_valid(self, form):
+        
+        # generate random username
         random_username = get_random_string(length=32)
         while User.objects.filter(username=random_username):
             random_username = get_random_string(length=32)
         form.instance.username = random_username
-        return super().form_valid(form)
+        self.object = form.save()
+
+        # log user in and redirect to logged home
+        user = authenticate(username=self.request.POST['email'], password=self.request.POST['password1'])
+        login(self.request, user)
+
+        data = {
+            'redirect_url': self.success_url,
+        }
+        return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -142,8 +132,9 @@ class HomepageView(View):
         request_type = request.POST.get('requestType')
         if request_type == 'login':
             view = HomepageLoginView.as_view()
-        elif request_type == 'registration':
+        elif request_type == 'registration' or 'registration' in request.POST:
             view = HomepageRegistrationView.as_view()
+
         return view(request, *args, **kwargs)
 
 
@@ -156,8 +147,7 @@ class ShoppingListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = {
-            'owned_lists': List.objects.filter(owner=self.request.user),
-            'guest_lists': List.objects.filter(guest__in=[self.request.user])
+            'owned_lists': List.objects.filter(owner=self.request.user) | List.objects.filter(guest__in=[self.request.user]),
         }
         return queryset
 

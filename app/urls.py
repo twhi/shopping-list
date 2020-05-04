@@ -20,7 +20,6 @@ from .views import *
 urlpatterns = [
     path('', HomepageView.as_view(), name='home'),
     path('my_lists', ShoppingListView.as_view(), name='my_lists'),
-    path('register/', Registration.as_view(), name='registration'),
     path('list/<int:pk>', ShoppingListDetailView.as_view(), name='list_detail'),
     path('delete/<int:pk>', ShoppingListDeleteView.as_view(), name='delete_list'),
     path('create/', CreateNewListView.as_view(), name='create_list'),

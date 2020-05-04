@@ -69,7 +69,10 @@ $(document).on('submit', '#registration', function (e) {
             }
         },
         error: function (data) {
-            $("#reg-error-message").text(data.responseJSON.error);
+            $("#reg-error-message").empty();
+            for (e in data.responseJSON) {
+                $("#reg-error-message").append(data.responseJSON[e][0].message, '<br>');
+            }
             $("#reg-error-message").addClass("alert alert-danger");
         },
     });
