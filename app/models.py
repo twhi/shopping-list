@@ -18,8 +18,8 @@ class List(models.Model):
         return self.name
 
 class Item(models.Model):
-    name = models.CharField(max_length=256)
-    quantity = models.IntegerField()
+    name = models.CharField(max_length=24)
+    quantity = models.CharField(max_length=12)
     parent_list = models.ForeignKey(List, on_delete=models.CASCADE)
     found = models.BooleanField()
     date_created = models.DateTimeField(auto_now_add=True)

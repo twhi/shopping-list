@@ -4,17 +4,18 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
 class NewItemForm(forms.Form):
-    item = forms.CharField(max_length=256, widget=forms.TextInput(
+    item = forms.CharField(max_length=24, widget=forms.TextInput(
         attrs={
             'class': 'form-control',
             'placeholder': 'Item',
             'id': 'new-item',
         }
     ))
-    quantity = forms.IntegerField(min_value=0, widget=forms.NumberInput(
+    quantity = forms.CharField(max_length=12, widget=forms.TextInput(
         attrs={
             'class': 'form-control',
-            'id': 'quantity'
+            'placeholder': 'Quantity',
+            'id': 'quantity',
         }
     ))
 
