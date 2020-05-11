@@ -35,7 +35,7 @@ class UserOwnsShoppingListMixin(UserPassesTestMixin):
 
 
 class ShoppingListDeleteView(UserOwnsShoppingListMixin, DeleteView):
-    
+
     model = List
     success_url = reverse_lazy('my_lists')
 
@@ -99,7 +99,7 @@ class HomepageRegistrationView(CreateView):
         return HttpResponse(form.errors.as_json(), status=500, content_type='application/json')
 
     def form_valid(self, form):
-        
+
         # generate random username
         random_username = get_random_string(length=32)
         while User.objects.filter(username=random_username):
@@ -108,7 +108,8 @@ class HomepageRegistrationView(CreateView):
         self.object = form.save()
 
         # log user in and redirect to logged home
-        user = authenticate(username=self.request.POST['email'], password=self.request.POST['password1'])
+        user = authenticate(
+            username=self.request.POST['email'], password=self.request.POST['password1'])
         login(self.request, user)
 
         data = {
@@ -159,11 +160,11 @@ class ShoppingListDisplay(LoginRequiredMixin, UserOwnsShoppingListMixin, DetailV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['items'] = Item.objects.filter(parent_list=self.object).order_by('date_created')
+        context['items'] = Item.objects.filter(
+            parent_list=self.object).order_by('date_created')
         context['new_item_form'] = NewItemForm()
         context['invite_user_form'] = InviteUserForm()
         return context
-
 
 
 class FetchListView(LoginRequiredMixin, DetailView):
@@ -180,6 +181,7 @@ class FetchListView(LoginRequiredMixin, DetailView):
             'shopping_list': render_to_string('shopping_list_table.html', context, request)
         }
         return JsonResponse(data)
+
 
 class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView):
     template_name = 'detail.html'
@@ -296,14 +298,14 @@ class InviteToListView(SingleObjectMixin, FormView):
             User doesn't exist. Need to figure out some sort of
             invite/registration process from here. Gonna be complex.
             """
-            
+
             messages.add_message(self.request, messages.ERROR,
                                  '{0} not registered on the website.'.format(email_address))
-            
+
             # from invitations.utils import get_invitation_model
             # Invitation = get_invitation_model()
             # invite = Invitation.create(email_address, inviter=request.user)
-            # invite.send_invitation(request)            
+            # invite.send_invitation(request)
             return super().post(self, request, *args, **kwargs)
 
         current_list = self.get_object()
