@@ -32,9 +32,12 @@ nav, footer {
     color: #080708;
 }
 
+.content {
+    margin: 20px;
+}
+
 .page-content {
     flex: 1;
-    margin: 20px;
 }
 
 #splash {

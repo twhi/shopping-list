@@ -24,4 +24,5 @@ urlpatterns = [
     path('delete/<int:pk>', ShoppingListDeleteView.as_view(), name='delete_list'),
     path('create/', CreateNewListView.as_view(), name='create_list'),
     path('invite_user/<int:pk>', InviteToListView.as_view(), name='invite_user'),
+    path('list/<int:pk>/fetch_list/', FetchListView.as_view(), name='fetch_list'),
 ]

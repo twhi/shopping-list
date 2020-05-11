@@ -2,7 +2,7 @@
 {% load static %}}
 
 {% block content %}
-
+<section class="content">
     <h1>Create New List</h1>
     <form method="post">
         {% csrf_token %}
@@ -14,5 +14,6 @@
                 <td><input type="submit" value="Create List"></td>
             </tr>
         </table>
-    
+    </form>
+</section>
 {% endblock content %}

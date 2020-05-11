@@ -3,60 +3,54 @@
 {% load humanize %}
 
 {% block content %}
+<section class="content">
+    <a href="{% url 'my_lists' %}" class="btn btn-blue">Back to My Lists</a>
+    <a class="btn btn-yellow" href="#" data-toggle="modal" data-target="#modal-invite-form">Invite User</a>
+    <form action="{% url 'delete_list' object.pk %}" method=POST>{% csrf_token %}<button class="btn btn-danger">Delete List</button></form>
 
-<a href="{% url 'my_lists' %}">Back to My Lists</a>
+    <hr>
 
-<hr>
+    {% if user == shopping_list.owner %}
+    {% include 'invite_form.html' %}
+    {% endif %}
 
-{% if user == shopping_list.owner %}
-{% include 'invite_form.html' %}
-{% endif %}
+    <h1>{{ shopping_list.name }}</h1>
+    <hr>
+    <div id="list-area">
+        {% include 'shopping_list_table.html' %}
+    </div>
+    <hr>
 
-<h1>{{ shopping_list.name }}</h1>
-<hr>
-<table id='shopping-list' class='inline-table'>
-    <tbody>
-        {% for item in items %}
-        {% if item.found %}<tr class="found-item click-area">{% else %}
-        <tr class="click-area">{% endif %}
-            <td>{{ item.name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.date_created|naturaltime }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<table id='close-buttons' class='inline-table'>
-    <form>
-        {% csrf_token %}
-        <tbody>
-            {% for item in items %}
+    <table>
+        <form method="post" id="post-form" onsubmit="return false;">
+            {% csrf_token %}
             <tr>
-                <td class="close-button">✖</td>
+                <td>{{ new_item_form.item }}</td>
+                <td>{{ new_item_form.quantity }}</td>
+                <td><input type="submit" value="Add item"></td>
             </tr>
-            {% endfor %}
-        </tbody>
-    </form>
-</table>
+        </form>
+    </table>
 
-<hr>
-
-<table>
-    <form method="post" id="post-form" onsubmit="return false;">
-        {% csrf_token %}
-        <tr>
-            <td>{{ new_item_form.item }}</td>
-            <td>{{ new_item_form.quantity }}</td>
-            <td><input type="submit" value="Add item"></td>
-        </tr>
-    </form>
-</table>
-
-<form action="{% url 'delete_list' object.pk %}" method=POST>{% csrf_token %}<button class="btn btn-danger">Delete List</button></form>
-
+</section>
 {% endblock content %}
 
 {% block scripts %}
 <script src="{% static 'app_static/addItem.js' %}"></script>
+
+<script>
+    (function worker() {
+        $.ajax({
+            url: window.location.href + '/fetch_list/',
+            success: function(data) {
+                $("#list-area").html(data.shopping_list);
+            },
+            complete: function() {
+                setTimeout(worker.bind(null), 5000);
+            }
+
+        });
+    })();
+</script>
+
 {% endblock scripts %}

@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model, authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-# from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse, HttpResponseForbidden, Http404, HttpResponse
@@ -16,10 +15,12 @@ from django.forms import ValidationError
 from django.views.generic import CreateView, ListView, DetailView, FormView, DeleteView, UpdateView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth import login as auth_login
+from django.template.loader import render_to_string
 
 from .models import List, Item
 from .forms import SignUpForm, NewItemForm, InviteUserForm, LoginForm
 
+from datetime import datetime
 from urllib.parse import parse_qs
 import json
 
@@ -138,7 +139,6 @@ class HomepageView(View):
         return view(request, *args, **kwargs)
 
 
-
 class ShoppingListView(LoginRequiredMixin, ListView):
     login_url = ''
     template_name = 'my_lists.html'
@@ -159,12 +159,27 @@ class ShoppingListDisplay(LoginRequiredMixin, UserOwnsShoppingListMixin, DetailV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['items'] = Item.objects.filter(
-            parent_list=self.object).order_by('date_created')
+        context['items'] = Item.objects.filter(parent_list=self.object).order_by('date_created')
         context['new_item_form'] = NewItemForm()
         context['invite_user_form'] = InviteUserForm()
         return context
 
+
+
+class FetchListView(LoginRequiredMixin, DetailView):
+
+    model = List
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = {
+            'items': Item.objects.filter(parent_list=self.object).order_by('date_created')
+        }
+
+        data = {
+            'shopping_list': render_to_string('shopping_list_table.html', context, request)
+        }
+        return JsonResponse(data)
 
 class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView):
     template_name = 'detail.html'
@@ -186,6 +201,7 @@ class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView
             'item': item,
             'quantity': quantity,
             'date_created': naturaltime(i.date_created),
+            'timestamp': i.date_created.isoformat(),
         }
         return JsonResponse(data)
 
@@ -198,11 +214,13 @@ class ShoppingListRemoveItem(UserOwnsShoppingListMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         item_name = request.GET['itemName']
         quantity = request.GET['quantity']
-        i = Item.objects.filter(
+        timestamp = request.GET['timestamp']
+        i = Item.objects.get(
             name=item_name,
             quantity=quantity,
-            parent_list=self.get_object()
-        )[0]
+            parent_list=self.get_object(),
+            date_created=timestamp,
+        )
         i.delete()
         payload = {'delete': 'ok'}
         return JsonResponse(payload)
@@ -216,11 +234,13 @@ class ShoppingListFoundItem(UserOwnsShoppingListMixin, UpdateView):
         selected_item = json.loads(request.POST.get('selected'))
         item_name = selected_item['itemName']
         quantity = selected_item['quantity']
-        i = Item.objects.filter(
+        timestamp = selected_item['timestamp']
+        i = Item.objects.get(
             name=item_name,
             quantity=quantity,
-            parent_list=self.get_object()
-        )[0]
+            parent_list=self.get_object(),
+            date_created=timestamp,
+        )
         i.found = not i.found
         i.save()
         payload = {'update': 'ok'}
@@ -278,12 +298,12 @@ class InviteToListView(SingleObjectMixin, FormView):
             """
             
             messages.add_message(self.request, messages.ERROR,
-                                 '{0} not registered on the website. Attempting invite.'.format(email_address))
+                                 '{0} not registered on the website.'.format(email_address))
             
-            from invitations.utils import get_invitation_model
-            Invitation = get_invitation_model()
-            invite = Invitation.create(email_address, inviter=request.user)
-            invite.send_invitation(request)            
+            # from invitations.utils import get_invitation_model
+            # Invitation = get_invitation_model()
+            # invite = Invitation.create(email_address, inviter=request.user)
+            # invite.send_invitation(request)            
             return super().post(self, request, *args, **kwargs)
 
         current_list = self.get_object()

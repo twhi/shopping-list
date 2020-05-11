@@ -1,0 +1,28 @@
+{% load humanize %}
+
+<table id='shopping-list' class='inline-table'>
+    <tbody>
+        {% for item in items %}
+        {% if item.found %}<tr class="found-item click-area">{% else %}
+        <tr class="click-area">{% endif %}
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.date_created|naturaltime }}</td>
+            <td style="display:none;"> {{ item.date_created|date:"c" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<table id='close-buttons' class='inline-table'>
+    <form>
+        {% csrf_token %}
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td class="close-button">✖</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </form>
+</table>

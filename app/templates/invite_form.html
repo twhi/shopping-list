@@ -20,3 +20,29 @@
 </form>
 
 <hr>
+
+<!-- Login Modal Start -->
+<div class="modal fade" id="modal-invite-form" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">Invite existing user</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body mx-3">
+                {% comment %} <form action="/invite_user/{{shopping_list.pk}}" method="post" id="email-form"> {% endcomment %}
+                <form onsubmit="return false;" id="login" method="POST">
+                    {% csrf_token %}
+                    {{ invite_user_form.email_address }}
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button class="btn btn-outline-success btn-green" type="submit" name="invite">Invite user</button>
+                    </div>
+                    <div id="login-error-message"></div>
+                </form>
+
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Login Modal End -->

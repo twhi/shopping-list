@@ -9,7 +9,8 @@ function clickedItem(x) {
     var itemRow = x.children;
     return {
         'itemName': itemRow[0].innerHTML,
-        'quantity': itemRow[1].innerHTML
+        'quantity': itemRow[1].innerHTML,
+        'timestamp': itemRow[3].innerHTML.trim(),
     } 
 }
 
@@ -26,6 +27,7 @@ function clickedClose(x) {
     return {
         'itemName': adjacentRow[0].children[0].innerHTML,
         'quantity': adjacentRow[0].children[1].innerHTML,
+        'timestamp': adjacentRow[0].children[3].innerHTML.trim(),
     }  
 }
 
@@ -36,7 +38,7 @@ function removeRow(x) {
 
 
 // cross off item if clicked in click-area
-$('#shopping-list').on('click', '.click-area', function (e) {
+$('body').on('click', '.click-area', function (e) {
     var $_this = $(this);
     $.ajax({
         type: 'POST',
@@ -68,7 +70,7 @@ $(document).on('submit', '#post-form', function (e) {
             action: 'post'
         },
         success: function (response) {
-            $('#shopping-list tbody').append('<tr class="click-area"><td>'+ response.item + '</td><td>' + response.quantity + '</td><td>' + response.date_created + '</td></tr>');
+            $('#shopping-list tbody').append('<tr class="click-area"><td>'+ response.item + '</td><td>' + response.quantity + '</td><td>' + response.date_created + '</td><td style="display:none;">' + response.timestamp + '</td></tr>');
             $('#close-buttons tbody').append('<tr><td class="close-button">✖</td></tr>');
         },
         error: function (data) {
@@ -78,7 +80,7 @@ $(document).on('submit', '#post-form', function (e) {
 });
 
 // remove list-item elements if close button is clicked
-$('#close-buttons').on('click', '.close-button', function (e) {
+$('body').on('click', '.close-button', function (e) {
     var $_this = $(this);
     $.ajax({
         type: 'DELETE',

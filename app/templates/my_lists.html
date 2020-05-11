@@ -1,30 +1,33 @@
-{% extends 'base.html' %} {% load static %}} {% load humanize %} {% block content %}
+{% extends 'base.html' %}
+{% load static %}}
+{% load humanize %}
 
-<a class="btn btn-yellow" href="{% url 'create_list' %}">Create new shopping list</a>
-<hr>
+{% block content %}
 
-
-<div class="row">
-    <div class="col-xl-6">
-        <div class="menu-group">
-            <h2>Your Shopping Lists</h2>
-            <ul class="list-group action-list-group">
-                {% for shopping_list in shopping_lists.owned_lists %}
-                <li class="list-group-item">
-                    <a class="list-group-link" href='{% url "list_detail" shopping_list.pk %}'>
-                        <h4 class="index-list-title">{{ shopping_list }}</h4>
-                        <small class="text-muted">Created: {{ shopping_list.date_created|naturaltime }}</small>
-                        <br>
-                        <small class="text-muted">Owner: {{ shopping_list.owner.email }}</small>
-                    </a>
-                    {% if shopping_list.owner == user %}
-                    <form action="{% url 'delete_list' shopping_list.pk %}" method=POST>{% csrf_token %}<button class="btn btn-sm btn-danger">Delete</button></form>
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
+<section class="content">
+    <a class="btn btn-yellow" href="{% url 'create_list' %}">Create new shopping list</a>
+    <hr>
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="menu-group">
+                <h2>Your Shopping Lists</h2>
+                <ul class="list-group action-list-group">
+                    {% for shopping_list in shopping_lists.owned_lists %}
+                    <li class="list-group-item">
+                        <a class="list-group-link" href='{% url "list_detail" shopping_list.pk %}'>
+                            <h4 class="index-list-title">{{ shopping_list }}</h4>
+                            <small class="text-muted">Created: {{ shopping_list.date_created|naturaltime }}</small>
+                            <br>
+                            <small class="text-muted">Owner: {{ shopping_list.owner.email }}</small>
+                        </a>
+                        {% if shopping_list.owner == user %}
+                        <form action="{% url 'delete_list' shopping_list.pk %}" method=POST>{% csrf_token %}<button class="btn btn-sm btn-danger">Delete</button></form>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
-</div>
-
+    <section class="content">
 {% endblock content %}
