@@ -6,7 +6,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse, HttpResponseForbidden, Http404, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils.crypto import get_random_string
@@ -23,7 +23,6 @@ from .forms import SignUpForm, NewItemForm, InviteUserForm, LoginForm
 from datetime import datetime
 from urllib.parse import parse_qs
 import json
-
 
 class UserOwnsShoppingListMixin(UserPassesTestMixin):
     def test_func(self):
@@ -46,9 +45,15 @@ class ShoppingListDeleteView(UserOwnsShoppingListMixin, DeleteView):
         return obj
 
 
-class HomepageDisplayView(TemplateView):
+class HomepageDisplayView(UserPassesTestMixin, TemplateView):
     template_name = 'index.html'
 
+    def test_func(self):
+        return not self.request.user.is_authenticated
+
+    def handle_no_permission(self):
+        return redirect('my_lists')
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['login_form'] = LoginForm()

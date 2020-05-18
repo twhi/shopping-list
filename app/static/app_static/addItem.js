@@ -6,28 +6,25 @@ function newItem() {
 }
 
 function clickedItem(x) {
-    var itemRow = x.children;
+    var itemRow = $(x).closest('tr')[0].children;
     return {
-        'itemName': itemRow[0].innerHTML,
-        'quantity': itemRow[1].innerHTML,
-        'timestamp': itemRow[3].innerHTML.trim(),
+        'itemName': itemRow[0].innerText,
+        'quantity': itemRow[1].innerText,
+        'timestamp': itemRow[4].innerText.trim(),
     } 
 }
 
 function getAdjacentRow(row) {
-    var parentTable = $(row).closest('table')[0];
     var rowIndex = $(row).parent().index();
-
-    var itemTable = $(parentTable).prev()[0];
-    return item = $('#' + itemTable.id + ' tr').eq(rowIndex);
+    return item = $('#shopping-list tr').eq(rowIndex);
 }
 
 function clickedClose(x) {
     adjacentRow = getAdjacentRow(x);
     return {
-        'itemName': adjacentRow[0].children[0].innerHTML,
-        'quantity': adjacentRow[0].children[1].innerHTML,
-        'timestamp': adjacentRow[0].children[3].innerHTML.trim(),
+        'itemName': adjacentRow[0].children[0].innerText,
+        'quantity': adjacentRow[0].children[1].innerText,
+        'timestamp': adjacentRow[0].children[4].innerText.trim(),
     }  
 }
 
@@ -50,7 +47,8 @@ $('body').on('click', '.click-area', function (e) {
             action: 'post'
         },
         success: function (response) {
-            $_this.toggleClass('found-item');
+            var parentRow = $_this.closest('tr')[0] //.toggleClass('found-item');
+            $(parentRow).toggleClass('found-item');
         },
         error: function (data) {
             alert('this failed');
@@ -70,8 +68,8 @@ $(document).on('submit', '#post-form', function (e) {
             action: 'post'
         },
         success: function (response) {
-            $('#shopping-list tbody').append('<tr class="click-area"><td>'+ response.item + '</td><td>' + response.quantity + '</td><td>' + response.date_created + '</td><td style="display:none;">' + response.timestamp + '</td></tr>');
-            $('#close-buttons tbody').append('<tr><td class="close-button">✖</td></tr>');
+            $('#shopping-list tbody').append('<tr><td style="word-break:break-all;"><div class="click-area">' + response.item + '</div></td><td><div class="click-area">' + response.quantity + '</div></td><td><small class="text-muted"><div class="click-area">' + response.date_created + '</div></small></td><td class="close-button">✖</td><td style="display:none;">' + response.timestamp + '</td></tr>');
+            // $('#close-buttons tbody').append('<tr><td class="close-button">✖</td></tr>');
         },
         error: function (data) {
             alert('this failed');
@@ -93,8 +91,6 @@ $('body').on('click', '.close-button', function (e) {
             action: 'delete'
         },
         success: function (response) {
-            removeRow($_this);
-            var r = 0;
             var rowIndex = $_this.parent().index();
             $_this.parent('tr').remove();
         },

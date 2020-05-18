@@ -18,27 +18,13 @@ grey/white  #e6e8e6
     background: rgb(255, 255, 255);
 }
 
-p,
-a,
-h1,
-h2,
-h3,
-h4 {
-    color: #011936;
-}
-
-h1 {
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
 h4 {
     font-weight: 100;
-    /* text-transform: uppercase; */
     font-family: 'Lato', sans-serif;
 }
 
-nav {
+nav, footer {
+    color: #080708;
     background-color: #ffc731;
 }
 
@@ -46,25 +32,56 @@ nav {
     color: #080708;
 }
 
+.content {
+    margin: 20px;
+}
+
 .page-content {
     flex: 1;
 }
+
+#splash {
+    overflow: hidden;
+    background: url(bg.jpg);
+    background-size: cover;
+    background-position: center;
+    padding-top: 100px;
+    padding-bottom: 100px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.landing-section-text {
+    color: white;
+}
+
+.white-link, .white-link:hover {
+    color: white !important;
+}
+
+.black-link, .black-link:hover {
+    color: #080708 !important;
+}
+
 
 .action-list-group {
     position: relative;
 }
 
 .index-list-title {
-    color: #f4fffd
+    color: #000000
 }
 
 .action-list-group .list-group-item {
     padding: 0;
     margin: 10px;
-    background: #465362;
+    background: #ffffff;
 }
 
-.action-list-group .list-group-item>a.list-group-link {
+.action-list-group .list-group-item > a.list-group-link {
     display: block;
     /* inherit from .list-group-item */
     padding: 20px 15px;
@@ -112,4 +129,41 @@ tr.found-item td:after {
 
 .inline-table {
     display: inline-block;
+}
+
+.menu-group {
+    /* background-color: #f6f0ff; */
+    border: 1px solid black;
+    padding: 20px;
+    border-radius: 10px;
+    /* margin: 10px; */
+  }
+
+.btn-yellow {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #000;
+    border-style: none;
+    background-color: #ffc731;
+    cursor: pointer;
+}
+
+.btn-yellow:hover, .btn-yellow:focus, .btn-yellow:active, .btn-yellow.active, .open>.dropdown-toggle.btn-yellow {
+    color: #000;
+    background-color: #e6a800;
+}
+
+
+.btn-blue {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #fff;
+    border-style: none;
+    background-color: #3772ff;
+    cursor: pointer;
+}
+
+.btn-blue:hover, .btn-blue:focus, .btn-blue:active, .btn-blue.active, .open>.dropdown-toggle.btn-blue {
+    color: #fff;
+    background-color: #004cff;
 }

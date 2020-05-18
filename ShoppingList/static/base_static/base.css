@@ -66,6 +66,9 @@ nav, footer {
     color: #080708 !important;
 }
 
+#list-area { 
+    margin-top: 10px;
+}
 
 .action-list-group {
     position: relative;
@@ -111,6 +114,7 @@ nav, footer {
 
 table {
     border-collapse: collapse;
+    margin: 0 auto;
 }
 
 td {
@@ -134,7 +138,7 @@ tr.found-item td:after {
 .menu-group {
     /* background-color: #f6f0ff; */
     border: 1px solid black;
-    padding: 20px;
+    padding: 20px 30px 20px 10px;
     border-radius: 10px;
     /* margin: 10px; */
   }
