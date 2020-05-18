@@ -15,10 +15,10 @@
         {% for item in items %}
         {% if item.found %}<tr class="found-item">{% else %}
         <tr>{% endif %}
-            <td>
+            <td style="word-break:break-all;">
                 <div class="click-area">{{ item.name }}</div>
             </td>
-            <td>
+            <td style="word-break:break-all;">
                 <div class="click-area">{{ item.quantity }}</div>
             </td>
             <td><small class="text-muted">

@@ -68,7 +68,7 @@ $(document).on('submit', '#post-form', function (e) {
             action: 'post'
         },
         success: function (response) {
-            $('#shopping-list tbody').append('<tr><td style="word-break:break-all;"><div class="click-area">' + response.item + '</div></td><td><div class="click-area">' + response.quantity + '</div></td><td><small class="text-muted"><div class="click-area">' + response.date_created + '</div></small></td><td class="close-button">✖</td><td style="display:none;">' + response.timestamp + '</td></tr>');
+            $('#shopping-list tbody').append('<tr><td style="word-break:break-all;"><div class="click-area">' + response.item + '</div></td><td style="word-break:break-all;"><div class="click-area">' + response.quantity + '</div></td><td><small class="text-muted"><div class="click-area">' + response.date_created + '</div></small></td><td class="close-button">✖</td><td style="display:none;">' + response.timestamp + '</td></tr>');
             // $('#close-buttons tbody').append('<tr><td class="close-button">✖</td></tr>');
         },
         error: function (data) {
