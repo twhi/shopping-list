@@ -266,6 +266,8 @@ class ShoppingListDetailView(View):
             view = ShoppingListAddItem.as_view()
         elif request_type == 'found':
             view = ShoppingListFoundItem.as_view()
+        elif request_type == 'invite':
+            view = InviteToListView.as_view()
         return view(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
@@ -293,36 +295,39 @@ class InviteToListView(SingleObjectMixin, FormView):
 
     def post(self, request, *args, **kwargs):
 
-        email_address = request.POST.get('email_address')
+        email_address = request.POST.get('email')
         user_model = get_user_model()
 
+        # see if user exists in DB
         try:
             user = user_model.objects.get(email=email_address)
         except user_model.DoesNotExist:
-            """
-            User doesn't exist. Need to figure out some sort of
-            invite/registration process from here. Gonna be complex.
-            """
+            response = JsonResponse({
+                'error': 'User not registered on website.',
+            })
+            response.status_code = 500
+            return response
 
-            messages.add_message(self.request, messages.ERROR,
-                                 '{0} not registered on the website.'.format(email_address))
-
-            # from invitations.utils import get_invitation_model
-            # Invitation = get_invitation_model()
-            # invite = Invitation.create(email_address, inviter=request.user)
-            # invite.send_invitation(request)
-            return super().post(self, request, *args, **kwargs)
-
+        # user has been found
         current_list = self.get_object()
         if current_list.owner.email == email_address:
-            messages.add_message(self.request, messages.ERROR,
-                                 '{0} owns this list.'.format(email_address))
+            response = JsonResponse({
+                'error': 'User {0} owns this list.'.format(email_address),
+            })
+            response.status_code = 500
+            return response
+        elif user in current_list.guest.all():
+            response = JsonResponse({
+                'error': 'User {0} has already been invited to this list.'.format(email_address),
+            })
+            response.status_code = 500
+            return response
         else:
             current_list.guest.add(user)
-            messages.add_message(self.request, messages.SUCCESS,
-                                 '{0} successfully added to list.'.format(user))
-
-        return super().post(self, request, *args, **kwargs)
+            data = {
+                'success': 'User {0} successfully invited to list.'.format(email_address),
+            }
+            return JsonResponse(data)
 
     def get_success_url(self):
         return reverse('list_detail', kwargs=self.kwargs)

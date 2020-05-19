@@ -9,16 +9,6 @@
     {% endif %}
 {% endblock %}
 
-<form action="/invite_user/{{shopping_list.pk}}" method="post" id="email-form">
-    {% csrf_token %}
-    <table>
-        <tr>
-            <td>{{ invite_user_form.email_address }}</td>
-            <td><input type="submit" value="Invite User"></td>
-        </tr>
-    </table>
-</form>
-
 <hr>
 
 <!-- Login Modal Start -->
@@ -31,7 +21,7 @@
             </div>
             <div class="modal-body mx-3">
                 {% comment %} <form action="/invite_user/{{shopping_list.pk}}" method="post" id="email-form"> {% endcomment %}
-                <form onsubmit="return false;" id="login" method="POST">
+                <form onsubmit="return false;" id="invite" method="POST">
                     {% csrf_token %}
                     {{ invite_user_form.email_address }}
                     <div class="modal-footer d-flex justify-content-center">

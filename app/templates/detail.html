@@ -5,46 +5,47 @@
 {% block content %}
 <section class="content">
     <a href="{% url 'my_lists' %}" class="btn btn-blue">Back to My Lists</a>
+    {% if user == shopping_list.owner %}
     <a class="btn btn-yellow" href="#" data-toggle="modal" data-target="#modal-invite-form">Invite User</a>
     <form action="{% url 'delete_list' object.pk %}" method=POST>{% csrf_token %}<button class="btn btn-danger">Delete List</button></form>
+    {% endif %}
 
     <hr>
 
-    {% if user == shopping_list.owner %}
-    {% include 'invite_form.html' %}
-    {% endif %}
-
     <div class="row">
         <div class="col-xl-6">
-            
+
             <div class="menu-group">
-                <h2>{{ shopping_list.name }}</h1>
-                    <small class="text-muted">Created: {{ shopping_list.date_created|naturaltime }} | Owner: {{ shopping_list.owner.email }}</small>
+                <h2>{{ shopping_list.name }}</h2>
+                <small class="text-muted">Created: {{ shopping_list.date_created|naturaltime }} | Owner: {{ shopping_list.owner.email }}</small>
 
-                    <div id="list-area">
-                        {% include 'shopping_list_table.html' %}
-                    </div>
+                <div id="list-area">
+                    {% include 'shopping_list_table.html' %}
+                </div>
 
-                    {% comment %} New item form start {% endcomment %}
-                    <table>
-                        <form method="post" id="post-form" onsubmit="return false;">
-                            {% csrf_token %}
-                            <tr>
-                                <td>{{ new_item_form.item }}</td>
-                                <td>{{ new_item_form.quantity }}</td>
-                                <td><input type="submit" value="Add item"></td>
-                            </tr>
-                        </form>
-                    </table>
-                    {% comment %} New item form end {% endcomment %}
+                <table>
+                    <form method="post" id="post-form" onsubmit="return false;">
+                        {% csrf_token %}
+                        <tr>
+                            <td>{{ new_item_form.item }}</td>
+                            <td>{{ new_item_form.quantity }}</td>
+                            <td><input type="submit" value="Add item"></td>
+                        </tr>
+                    </form>
+                </table>
             </div>
         </div>
     </div>
-
 </section>
+
+{% if user == shopping_list.owner %}
+{% include 'invite_form.html' %}
+{% endif %}
+
 {% endblock content %}
 
 {% block scripts %}
-<script src="{% static 'app_static/addItem.js' %}"></script>
+<script src="{% static 'app_static/listActions.js' %}"></script>
 <script src="{% static 'app_static/fetchList.js' %}"></script>
+<script src="{% static 'app_static/inviteUser.js' %}"></script>
 {% endblock scripts %}

@@ -1,8 +1,5 @@
 {% load humanize %}
 
-
-
-
 <table class="table" id='shopping-list'>
     <tbody>
         <tr>
@@ -13,8 +10,7 @@
         </tr>
 
         {% for item in items %}
-        {% if item.found %}<tr class="found-item">{% else %}
-        <tr>{% endif %}
+        {% if item.found %}<tr class="found-item">{% else %}<tr>{% endif %}
             <td style="word-break:break-all;">
                 <div class="click-area">{{ item.name }}</div>
             </td>
@@ -24,7 +20,7 @@
             <td><small class="text-muted">
                     <div class="click-area">{{ item.date_created|naturaltime }}</div>
                 </small></td>
-            <td class="close-button">✖</td>
+            <td><div class="close-button">✖</div></td>
             <td style="display:none;">{{ item.date_created|date:"c" }}</td>
         </tr>
         {% endfor %}

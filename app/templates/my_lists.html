@@ -5,8 +5,6 @@
 {% block content %}
 
 <section class="content">
-    <a class="btn btn-yellow" href="{% url 'create_list' %}">Create new shopping list</a>
-    <hr>
     <div class="row">
         <div class="col-xl-6">
             <div class="menu-group">
@@ -26,8 +24,12 @@
                     </li>
                     {% endfor %}
                 </ul>
+                <a class="btn btn-yellow" href="{% url 'create_list' %}">Create new shopping list</a>
             </div>
         </div>
     </div>
-    <section class="content">
+
+    <hr>
+    
+<section class="content">
 {% endblock content %}
