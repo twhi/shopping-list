@@ -4,6 +4,18 @@ PRODUCTION ENVIRONMENT SETTINGS
 
 from .settings_common import *  
 
+# Dev database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'shopping-list',
+        'USER': os.environ.get('DEV_DB_USER'),
+        'PASSWORD': os.environ.get('DEV_DB_PASSWORD'),
+        'HOST': os.environ.get('DEV_DB_HOST'),
+        'PORT': os.environ.get('DEV_DB_PORT'),
+    }
+}
+
 
 DEBUG = False
 ALLOWED_HOSTS = ['young-earth-91343.herokuapp.com'] 
