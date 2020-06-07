@@ -5,7 +5,7 @@ PRODUCTION ENVIRONMENT SETTINGS
 from .settings_common import *  
 
 DEBUG = False
-ALLOWED_HOSTS = ['young-earth-91343.herokuapp.com'] 
+ALLOWED_HOSTS = ['shoppin-mate.herokuapp.com'] 
 
 # AWS S3 bucket credentials
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME')
