@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.sites',
     'app',
+    'storages',
 ]
 
 SITE_ID = 1
