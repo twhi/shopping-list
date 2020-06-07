@@ -292,10 +292,11 @@ class InviteToListView(SingleObjectMixin, FormView):
     template_name = 'detail.html'
     form_class = InviteUserForm
     model = List
-
+    
     def post(self, request, *args, **kwargs):
 
         email_address = request.POST.get('email')
+        
         user_model = get_user_model()
 
         # see if user exists in DB
@@ -308,7 +309,6 @@ class InviteToListView(SingleObjectMixin, FormView):
             response.status_code = 500
             return response
 
-        # user has been found
         current_list = self.get_object()
         if current_list.owner.email == email_address:
             response = JsonResponse({
