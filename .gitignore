@@ -1,7 +1,7 @@
-static/admin/
-static/app_static/
-bootstrap/
-*.min.js
+# static/admin/
+# static/app_static/
+# bootstrap/
+# *.min.js
 
 
 # Byte-compiled / optimized / DLL files
