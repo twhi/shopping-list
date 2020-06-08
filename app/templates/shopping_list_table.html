@@ -20,7 +20,7 @@
             <td><small class="text-muted">
                     <div class="click-area">{{ item.date_created|naturaltime }}</div>
                 </small></td>
-            <td class="close-button">✖</td>
+            <td><div class="close-button">✖</div></td>
             <td style="display:none;">{{ item.date_created|date:"c" }}</td>
         </tr>
         {% endfor %}
