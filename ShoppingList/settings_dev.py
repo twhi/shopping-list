@@ -6,7 +6,7 @@ from .settings_common import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '192.168.1.64']
+ALLOWED_HOSTS = ['localhost']
 
 # Dev database
 DATABASES = {

@@ -5,8 +5,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ.get('SHOPPING_LIST_DJANGO_SECRET')
 
-ALLOWED_HOSTS = ['localhost']
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
