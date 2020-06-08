@@ -226,7 +226,7 @@ class ShoppingListRemoveItem(UserOwnsShoppingListMixin, DeleteView):
             name=item_name,
             quantity=quantity,
             parent_list=self.get_object(),
-            # date_created=timestamp,
+            date_created=timestamp,
         )
         i.delete()
         payload = {'delete': 'ok'}
@@ -246,7 +246,7 @@ class ShoppingListFoundItem(UserOwnsShoppingListMixin, UpdateView):
             name=item_name,
             quantity=quantity,
             parent_list=self.get_object(),
-            # date_created=timestamp,
+            date_created=timestamp,
         )
         i.found = not i.found
         i.save()

@@ -8,6 +8,8 @@ function getNewItemParams() {
 
 function getRowValues(x) {
     var itemRow = $(x).closest('tr')[0].children;
+    alert(itemRow[0].innerText.trim() +'\n' + itemRow[1].innerText.trim() + '\n' + itemRow[4].innerText.trim())
+
     return {
         'itemName': itemRow[0].innerText.trim(),
         'quantity': itemRow[1].innerText.trim(),
