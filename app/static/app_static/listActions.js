@@ -42,7 +42,7 @@ $(document).on('submit', '#post-form', function (e) {
 
 // Remove Item
 $('body').on('click', '.close-button', function (e) {
-    var $_this = $(this);
+    var _this = $(this);
     $.ajax({
         type: 'DELETE',
         url: window.location.href  + '?' + $.param(getRowValues(this)),
@@ -54,8 +54,8 @@ $('body').on('click', '.close-button', function (e) {
             action: 'delete'
         },
         success: function (response) {
-            var rowIndex = $_this.parent().index();
-            $_this.parent('tr').remove();
+            var rowIndex = $(_this).closest('tr');
+            $(_this).closest('tr')[0].remove();
         },
         error: function (data) {
             alert('this failed');
