@@ -295,7 +295,7 @@ class InviteToListView(SingleObjectMixin, FormView):
     
     def post(self, request, *args, **kwargs):
 
-        email_address = request.POST.get('email')
+        email_address = request.POST.get('email').lower()
         
         user_model = get_user_model()
 

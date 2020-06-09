@@ -54,7 +54,6 @@ $('body').on('click', '.close-button', function (e) {
             action: 'delete'
         },
         success: function (response) {
-            var rowIndex = $(_this).closest('tr');
             $(_this).closest('tr')[0].remove();
         },
         error: function (data) {
