@@ -5,6 +5,7 @@ from django.contrib.auth.backends import ModelBackend
 class EmailBackend(ModelBackend):
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        username = username.lower()
         user_model = get_user_model()
         try:
             if hasattr(request, 'current_app') and request.current_app == 'admin':

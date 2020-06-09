@@ -1,5 +1,6 @@
 // Log in
 $(document).on('submit', '#login', function (e) {
+    $("#login-btn").prop("disabled", true);
     $.ajax({
         type: 'POST',
         url: '',
@@ -19,12 +20,14 @@ $(document).on('submit', '#login', function (e) {
         error: function (data) {
             $("#login-error-message").text(data.responseJSON.error);
             $("#login-error-message").addClass("alert alert-danger");
+            $("#login-btn").prop("disabled", false);
         },
     });
 });
 
 // Register
 $(document).on('submit', '#registration', function (e) {
+    $("#register-btn").prop("disabled", true);
     $.ajax({
         type: 'POST',
         url: '',
@@ -50,6 +53,7 @@ $(document).on('submit', '#registration', function (e) {
                 $("#reg-error-message").append(data.responseJSON[e][0].message, '<br>');
             }
             $("#reg-error-message").addClass("alert alert-danger");
+            $("#register-btn").prop("disabled", false);
         },
     });
 });

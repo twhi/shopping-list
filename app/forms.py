@@ -29,6 +29,7 @@ class InviteUserForm(forms.Form):
     ))
 
 class SignUpForm(UserCreationForm):
+    
     email = forms.EmailField(max_length=254,
         widget= forms.TextInput(attrs={
             'id': 'reg-email',
@@ -50,7 +51,6 @@ class SignUpForm(UserCreationForm):
             'placeholder':'Password Confirmation'
             })
         )
-    
     first_name = forms.CharField(max_length=30, required=False, 
         widget= forms.TextInput(attrs={
             'id': 'reg-first-name',
@@ -71,7 +71,7 @@ class SignUpForm(UserCreationForm):
         fields = ('email', 'first_name', 'last_name', 'password1', 'password2', )
 
     def clean_email(self):
-        email = self.cleaned_data['email']
+        email = self.cleaned_data['email'].lower()
         try:
             user = User.objects.get(email=email)
             raise forms.ValidationError('Email already in use.')
