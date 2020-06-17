@@ -33,6 +33,7 @@ class UserOwnsListMixin(UserPassesTestMixin):
         """
         return self.request.user == self.get_object().owner
 
+
 class UserCanInteractWithListMixin(UserPassesTestMixin):
     def test_func(self):
         """
@@ -43,15 +44,8 @@ class UserCanInteractWithListMixin(UserPassesTestMixin):
 
 
 class ShoppingListDeleteView(UserOwnsListMixin, DeleteView):
-
     model = List
     success_url = reverse_lazy('my_lists')
-
-    def get_object(self, queryset=None):
-        obj = super().get_object()
-        if not obj.owner == self.request.user:
-            raise Http404
-        return obj
 
 
 class ShoppingListHideView(UserCanInteractWithListMixin, UpdateView):
