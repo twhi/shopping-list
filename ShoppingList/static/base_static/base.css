@@ -121,6 +121,10 @@ td {
     padding: 5px 10px;
 }
 
+#shopping-list td {
+    cursor: pointer;
+}
+
 /* tr.found-item td:after {
     content: " ";
     position: absolute;
@@ -131,8 +135,8 @@ td {
 } */
 
 tr.found-item {
-    color: white !important;
-    background-color: lightgray;
+    color: gray !important;
+    background-color: rgb(238, 238, 238);
 }
 
 .close-button {
