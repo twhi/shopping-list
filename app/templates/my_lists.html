@@ -20,6 +20,8 @@
                         </a>
                         {% if shopping_list.owner == user %}
                         <form action="{% url 'delete_list' shopping_list.pk %}" method=POST>{% csrf_token %}<button class="btn btn-sm btn-danger">Delete</button></form>
+                        {% else %}
+                        <form action="{% url 'hide_list' shopping_list.pk %}" method=POST>{% csrf_token %}<button class="btn btn-sm btn-danger">Hide</button></form>
                         {% endif %}
                     </li>
                     {% endfor %}

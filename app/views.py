@@ -24,16 +24,25 @@ from datetime import datetime
 from urllib.parse import parse_qs
 import json
 
-class UserOwnsShoppingListMixin(UserPassesTestMixin):
+
+class UserOwnsListMixin(UserPassesTestMixin):
     def test_func(self):
         """
-        Checks if the current user is the list owner, or is a guest.
+        Checks if the current user is the list owner.
+        Denies access otherwise.
+        """
+        return self.request.user == self.get_object().owner
+
+class UserCanInteractWithListMixin(UserPassesTestMixin):
+    def test_func(self):
+        """
+        Checks if the current user is the list owner or a guest.
         Denies access otherwise.
         """
         return self.request.user == self.get_object().owner or self.request.user in self.get_object().guest.all()
 
 
-class ShoppingListDeleteView(UserOwnsShoppingListMixin, DeleteView):
+class ShoppingListDeleteView(UserOwnsListMixin, DeleteView):
 
     model = List
     success_url = reverse_lazy('my_lists')
@@ -43,6 +52,17 @@ class ShoppingListDeleteView(UserOwnsShoppingListMixin, DeleteView):
         if not obj.owner == self.request.user:
             raise Http404
         return obj
+
+
+class ShoppingListHideView(UserCanInteractWithListMixin, UpdateView):
+    success_url = 'my_lists.html'
+    model = List
+
+    def post(self, request, *args, **kwargs):
+        current_list = List.objects.get(pk=kwargs['pk'])
+        current_list.guest.remove(request.user)
+        current_list.save()
+        return redirect('my_lists')
 
 
 class HomepageDisplayView(UserPassesTestMixin, TemplateView):
@@ -158,7 +178,7 @@ class ShoppingListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class ShoppingListDisplay(LoginRequiredMixin, UserOwnsShoppingListMixin, DetailView):
+class ShoppingListDisplay(LoginRequiredMixin, UserCanInteractWithListMixin, DetailView):
     template_name = 'detail.html'
     context_object_name = 'shopping_list'
     model = List
@@ -188,7 +208,7 @@ class FetchListView(LoginRequiredMixin, DetailView):
         return JsonResponse(data)
 
 
-class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView):
+class ShoppingListAddItem(SingleObjectMixin, UserCanInteractWithListMixin, FormView):
     template_name = 'detail.html'
     form_class = NewItemForm
     model = List
@@ -213,7 +233,7 @@ class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView
         return JsonResponse(data)
 
 
-class ShoppingListRemoveItem(UserOwnsShoppingListMixin, DeleteView):
+class ShoppingListRemoveItem(UserCanInteractWithListMixin, DeleteView):
     template_name = 'detail.html'
     form_class = NewItemForm
     model = List
@@ -233,7 +253,7 @@ class ShoppingListRemoveItem(UserOwnsShoppingListMixin, DeleteView):
         return JsonResponse(payload)
 
 
-class ShoppingListFoundItem(UserOwnsShoppingListMixin, UpdateView):
+class ShoppingListFoundItem(UserCanInteractWithListMixin, UpdateView):
     template_name = 'detail.html'
     model = List
 
