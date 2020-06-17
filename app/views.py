@@ -195,8 +195,8 @@ class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView
 
     def post(self, request, *args, **kwargs):
         new_item_data = json.loads(request.POST.get('selected'))
-        item = new_item_data['itemName']
-        quantity = new_item_data['quantity']
+        item = new_item_data['itemName'].replace(u'\xa0', u' ')
+        quantity = new_item_data['quantity'].replace(u'\xa0', u' ')
         i = Item.objects.create(
             name=item,
             quantity=quantity,
@@ -205,8 +205,8 @@ class ShoppingListAddItem(SingleObjectMixin, UserOwnsShoppingListMixin, FormView
         )
         i.save()
         data = {
-            'item': item,
-            'quantity': quantity,
+            'item': item.replace(' ', '&nbsp;'),
+            'quantity': quantity.replace(' ', '&nbsp;'),
             'date_created': naturaltime(i.date_created),
             'timestamp': i.date_created.isoformat(),
         }
@@ -219,8 +219,8 @@ class ShoppingListRemoveItem(UserOwnsShoppingListMixin, DeleteView):
     model = List
 
     def delete(self, request, *args, **kwargs):
-        item_name = request.GET['itemName']
-        quantity = request.GET['quantity']
+        item_name = request.GET['itemName'].replace(u'\xa0', u' ')
+        quantity = request.GET['quantity'].replace(u'\xa0', u' ')
         timestamp = request.GET['timestamp']
         i = Item.objects.get(
             name=item_name,
@@ -239,8 +239,8 @@ class ShoppingListFoundItem(UserOwnsShoppingListMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         selected_item = json.loads(request.POST.get('selected'))
-        item_name = selected_item['itemName']
-        quantity = selected_item['quantity']
+        item_name = selected_item['itemName'].replace(u'\xa0', u' ')
+        quantity = selected_item['quantity'].replace(u'\xa0', u' ')
         timestamp = selected_item['timestamp']
         i = Item.objects.get(
             name=item_name,

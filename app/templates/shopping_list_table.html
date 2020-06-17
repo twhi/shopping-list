@@ -1,4 +1,5 @@
 {% load humanize %}
+{% load spacer %}
 
 <table class="table" id='shopping-list'>
     <tbody>
@@ -11,9 +12,9 @@
 
         {% for item in items %}
         {% if item.found %}<tr class="found-item">{% else %}<tr>{% endif %}
-            <td style="word-break:break-word;"><div class="click-area">{{ item.name }}</div></td>
-            <td style="word-break:break-word;"><div class="click-area">{{ item.quantity }}</div></td>
-            <td class="hide-mobile"><small style="word-break:break-all;" class="text-muted"><div class="click-area">{{ item.date_created|naturaltime }}</div></small></td>
+            <td class="break-words"><div class="click-area">{{ item.name|spacer }}</div></td>
+            <td class="break-words"><div class="click-area">{{ item.quantity|spacer }}</div></td>
+            <td class="break-words hide-mobile"><small class="text-muted"><div class="click-area">{{ item.date_created|naturaltime }}</div></small></td>
             <td><div class="close-button">✖</div></td>
             <td style="display:none;">{{ item.date_created|date:"c" }}</td>
         </tr>
