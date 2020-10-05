@@ -167,7 +167,7 @@ class ShoppingListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = {
-            'owned_lists': List.objects.filter(owner=self.request.user) | List.objects.filter(guest__in=[self.request.user]),
+            'owned_lists': (List.objects.filter(owner=self.request.user) | List.objects.filter(guest__in=[self.request.user])).distinct(),
         }
         return queryset
 
