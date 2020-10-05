@@ -18,7 +18,7 @@ class List(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['date_created']
+        ordering = ['-date_created']
 
 class Item(models.Model):
     name = models.CharField(max_length=24)
