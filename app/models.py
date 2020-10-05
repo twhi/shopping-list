@@ -17,6 +17,9 @@ class List(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['date_created']
+
 class Item(models.Model):
     name = models.CharField(max_length=24)
     quantity = models.CharField(max_length=12)
