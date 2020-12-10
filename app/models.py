@@ -30,3 +30,14 @@ class Item(models.Model):
 
     def __str__(self):
         return '{0}: {1}'.format(self.parent_list, self.name)
+
+
+class Stopword(models.Model):
+    stopword = models.CharField(max_length=12)
+
+    def save(self, *args, **kwargs):
+        self.stopword = self.stopword.lower()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.stopword

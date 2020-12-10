@@ -35,7 +35,11 @@ $(document).on('submit', '#post-form', function (e) {
             $('#new-item').focus();
         },
         error: function (data) {
-            alert('Adding item failed.');
+            if (data.responseText) {
+                alert(JSON.parse(data.responseText).message);
+            } else {
+                alert('Adding item failed. Uncaught error.');
+            }
         }
     });
 });

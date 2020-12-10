@@ -17,7 +17,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth import login as auth_login
 from django.template.loader import render_to_string
 
-from .models import List, Item
+from .models import List, Item, Stopword
 from .forms import SignUpForm, NewItemForm, InviteUserForm, LoginForm
 
 from datetime import datetime
@@ -206,11 +206,21 @@ class ShoppingListAddItem(SingleObjectMixin, UserCanInteractWithListMixin, FormV
     template_name = 'detail.html'
     form_class = NewItemForm
     model = List
+    stopwords = Stopword.objects.all().values_list('stopword', flat=True)
 
     def post(self, request, *args, **kwargs):
         new_item_data = json.loads(request.POST.get('selected'))
         item = new_item_data['itemName'].replace(u'\xa0', u' ')
         quantity = new_item_data['quantity'].replace(u'\xa0', u' ')
+
+        # Check if the supplied quantity is a disallowed word, based
+        # on the stopwords defined in the Stopwords DB table.
+        # Return an error if so.
+        if any(word in quantity.lower() for word in self.stopwords):
+            print('captured stopword')
+            message = 'Disallowed words used. NO!'
+            return JsonResponse({'message': message}, status=500)
+
         i = Item.objects.create(
             name=item,
             quantity=quantity,
