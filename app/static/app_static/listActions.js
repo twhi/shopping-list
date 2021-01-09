@@ -87,4 +87,14 @@ $('body').on('click', '.click-area', function (e) {
         }
     });
 });
+
+// Edit Item
+$('body').on('click', '.edit-button', function (e) {
+    var parentRow = $(this).closest('tr')[0];
+    var input = $('<input class="form-control">').val("$(this).text()");
+    $(parentRow).children(':eq(0), :eq(1)').replaceWith(input);
+    repeater.pause();
+});
+
+
 // List actions end
