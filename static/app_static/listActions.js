@@ -9,9 +9,9 @@ function getNewItemParams() {
 function getRowValues(x) {
     var itemRow = $(x).closest('tr')[0].children;
     return {
-        'itemName': itemRow[0].innerText,
-        'quantity': itemRow[1].innerText,
-        'timestamp': itemRow[4].innerText.trim(),
+        'itemName': itemRow[0].innerText.replace(/[\n\r]/g, ""),
+        'quantity': itemRow[1].innerText.replace(/[\n\r]/g, ""),
+        'timestamp': itemRow[4].innerText.replace(/[\n\r]/g, ""),
     } 
 }
 // Helper functions end
@@ -29,17 +29,24 @@ $(document).on('submit', '#post-form', function (e) {
             action: 'post'
         },
         success: function (response) {
-            $('#shopping-list tbody').append('<tr><td style="word-break:break-all;"><div class="click-area">' + response.item + '</div></td><td style="word-break:break-all;"><div class="click-area">' + response.quantity + '</div></td><td><small class="text-muted"><div class="click-area">' + response.date_created + '</div></small></td><td class="close-button">✖</td><td style="display:none;">' + response.timestamp + '</td></tr>');
+            $('#shopping-list tbody').append('<tr><td class="break-words"><div class="click-area">' + response.item + '</div></td><td class="break-words"><div class="click-area">' + response.quantity + '</div></td><td class="break-words hide-mobile"><small class="text-muted"><div class="click-area">' + response.date_created + '</div></small></td><td><div class="close-button">✖</div></td><td style="display:none;">' + response.timestamp + '</td></tr>');
+            $('#new-item').val('');
+            $('#quantity').val('');
+            $('#new-item').focus();
         },
         error: function (data) {
-            alert('this failed');
+            if (data.responseText) {
+                alert(JSON.parse(data.responseText).message);
+            } else {
+                alert('Adding item failed. Uncaught error.');
+            }
         }
     });
 });
 
 // Remove Item
 $('body').on('click', '.close-button', function (e) {
-    var $_this = $(this);
+    var _this = $(this);
     $.ajax({
         type: 'DELETE',
         url: window.location.href  + '?' + $.param(getRowValues(this)),
@@ -51,8 +58,7 @@ $('body').on('click', '.close-button', function (e) {
             action: 'delete'
         },
         success: function (response) {
-            var rowIndex = $_this.parent().index();
-            $_this.parent('tr').remove();
+            $(_this).closest('tr')[0].remove();
         },
         error: function (data) {
             alert('this failed');

@@ -5,7 +5,7 @@
             $("#list-area").html(data.shopping_list);
         },
         complete: function() {
-            setTimeout(worker.bind(null), 5000);
+            setTimeout(worker.bind(null), 50000000);
         }
     });
 })();

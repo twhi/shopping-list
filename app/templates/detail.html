@@ -24,7 +24,7 @@
                     {% include 'shopping_list_table.html' %}
                 </div>
 
-                <table>
+                <table id="listForm">
                     <form method="post" id="post-form" onsubmit="return false;">
                         {% csrf_token %}
                         <tr>
@@ -49,4 +49,5 @@
 <script src="{% static 'app_static/listActions.js' %}"></script>
 <script src="{% static 'app_static/fetchList.js' %}"></script>
 <script src="{% static 'app_static/inviteUser.js' %}"></script>
+<script src="{% static 'app_static/sortTable.js'%}"></script>
 {% endblock scripts %}

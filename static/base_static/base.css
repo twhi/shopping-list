@@ -102,6 +102,14 @@ nav, footer {
     top: 0;
 }
 
+@media screen and (max-width: 576px) {
+    .hide-mobile {
+      display: none;
+    }
+  }
+
+
+
 .footer {
     height: 20px;
     background-color: #171d1c;
@@ -113,13 +121,22 @@ td {
     padding: 5px 10px;
 }
 
-tr.found-item td:after {
+#shopping-list td {
+    cursor: pointer;
+}
+
+/* tr.found-item td:after {
     content: " ";
     position: absolute;
     top: 50%;
     left: 0;
     border-bottom: 1px solid #111;
     width: 100%;
+} */
+
+tr.found-item {
+    color: gray !important;
+    background-color: rgb(219, 241, 214);
 }
 
 .close-button {
@@ -160,4 +177,8 @@ tr.found-item td:after {
 .btn-blue:hover, .btn-blue:focus, .btn-blue:active, .btn-blue.active, .open>.dropdown-toggle.btn-blue {
     color: #fff;
     background-color: #004cff;
+}
+
+.break-words {
+    word-break: break-word;
 }

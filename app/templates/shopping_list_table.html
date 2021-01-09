@@ -2,14 +2,17 @@
 {% load spacer %}
 
 <table class="table" id='shopping-list'>
-    <tbody>
-        <tr>
-            <th>Item</th>
-            <th>Quantity</th>
-            <th class="hide-mobile">Added</th>
-            <th></th>
-        </tr>
 
+    <thead>
+        <tr>
+            <th class="sort-title" data-sort="0">Item <i class="fa fa-fw fa-sort"></i></th>
+            <th class="sort-title" data-sort="1">Quantity <i class="fa fa-fw fa-sort"></i></th>
+            <th class="hide-mobile" data-sort="2">Added</th>
+            <th>Opp</th>
+        </tr>
+    </thead>
+
+    <tbody>
         {% for item in items %}
         {% if item.found %}<tr class="found-item">{% else %}<tr>{% endif %}
             <td class="break-words"><div class="click-area">{{ item.name|spacer }}</div></td>
@@ -21,3 +24,7 @@
         {% endfor %}
     </tbody>
 </table>
+
+<i class="fa fa-fw fa-sort"></i>
+<i class="fa fa-fw fa-sort-down"></i>
+<i class="fa fa-fw fa-sort-up"></i>
