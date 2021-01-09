@@ -33,10 +33,10 @@ class Item(models.Model):
 
 
 class Stopword(models.Model):
-    stopword = models.CharField(max_length=12)
+    stopword = models.CharField(max_length=30)
 
     def save(self, *args, **kwargs):
-        self.stopword = self.stopword.lower()
+        self.stopword = ' '.join(self.stopword.lower())
         return super().save(*args, **kwargs)
 
     def __str__(self):

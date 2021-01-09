@@ -23,6 +23,20 @@ from .forms import SignUpForm, NewItemForm, InviteUserForm, LoginForm
 from datetime import datetime
 from urllib.parse import parse_qs
 import json
+from fuzzywuzzy import fuzz
+import random
+
+STOPWORD_MESSAGES = [
+    'Disallowed words used. NO!',
+    'Stop trying to add naughty words m8.',
+    'Please be more specific in your quantity.',
+    'Am I a joke to you?!',
+    'Are you trying to break me? :(',
+    'Stop, or so help me God, I will hit you with my ring hand.',
+    'That joke isn\'t funny anymore.',
+    'LOL!!!!!! Nice try.',
+    'HAHAHA, that\'s really funny. Oh wait, no it\'s not',
+]
 
 
 class UserOwnsListMixin(UserPassesTestMixin):
@@ -216,9 +230,8 @@ class ShoppingListAddItem(SingleObjectMixin, UserCanInteractWithListMixin, FormV
         # Check if the supplied quantity is a disallowed word, based
         # on the stopwords defined in the Stopwords DB table.
         # Return an error if so.
-        if any(word in quantity.lower() for word in self.stopwords):
-            print('captured stopword')
-            message = 'Disallowed words used. NO!'
+        if self._is_stopword(quantity):
+            message = random.choice(STOPWORD_MESSAGES)
             return JsonResponse({'message': message}, status=500)
 
         i = Item.objects.create(
@@ -235,6 +248,44 @@ class ShoppingListAddItem(SingleObjectMixin, UserCanInteractWithListMixin, FormV
             'timestamp': i.date_created.isoformat(),
         }
         return JsonResponse(data)
+
+
+    def _is_stopword(self, word):
+        """
+            Takes the entered word and adds spaces between
+            every letter. It then performs a comparison against
+            all of the stopwords. If a similarity of 95% or 
+            greater is found then disallow the word.
+
+            Args:
+                wrd = the user-entered value to test (str)
+
+            Returns:
+                True: if the user-entered value is disallowed
+                False: if the user-entered value is allowed
+        """
+
+        wrd = word
+
+        # if wrd is a number then return False, numbers cant
+        # be disallowed
+        if wrd.isdigit():
+            return False
+
+        # add spaces between each character
+        wrd = ' '.join(wrd.lower())
+        
+        # if a direct match is found then return True
+        if wrd in self.stopwords:
+            return True
+
+        # otherwise loop through stopwords looking for similarity
+        for s in self.stopwords:
+            ratio = fuzz.token_set_ratio(s, wrd)
+            if ratio >= 95:
+                print(f'Stopword detected: {word} ({ratio}%)')
+                return True
+        return False
 
 
 class ShoppingListRemoveItem(UserCanInteractWithListMixin, DeleteView):
