@@ -6,13 +6,19 @@ function getNewItemParams() {
     }
 }
 
-function getRowValues(x) {
-    var itemRow = $(x).closest('tr')[0].children;
+function getRowPK(x) {
     return {
-        'itemName': itemRow[0].innerText.replace(/[\n\r]/g, ""),
-        'quantity': itemRow[1].innerText.replace(/[\n\r]/g, ""),
-        'timestamp': itemRow[4].innerText.replace(/[\n\r]/g, ""),
+        'pk': $(x).closest('tr')[0].dataset.pk
     } 
+}
+
+function getUpdatedInfo(x) {
+    var parentRow = $(x).closest('tr')[0];
+    return {
+        'pk': parentRow.dataset.pk,
+        'name': $(parentRow).find('input').eq(0).val(),
+        'quantity': $(parentRow).find('input').eq(1).val(),
+    }
 }
 // Helper functions end
 
@@ -29,7 +35,7 @@ $(document).on('submit', '#post-form', function (e) {
             action: 'post'
         },
         success: function (response) {
-            $('#shopping-list tbody').append('<tr><td class="break-words"><div class="click-area">' + response.item + '</div></td><td class="break-words"><div class="click-area">' + response.quantity + '</div></td><td class="break-words hide-mobile"><small class="text-muted"><div class="click-area">' + response.date_created + '</div></small></td><td><div class="close-button">✖</div></td><td style="display:none;">' + response.timestamp + '</td></tr>');
+            $('#shopping-list tbody').append(response.new_item);
             $('#new-item').val('');
             $('#quantity').val('');
             $('#new-item').focus();
@@ -49,7 +55,7 @@ $('body').on('click', '.close-button', function (e) {
     var _this = $(this);
     $.ajax({
         type: 'DELETE',
-        url: window.location.href  + '?' + $.param(getRowValues(this)),
+        url: window.location.href  + '?' + $.param(getRowPK(this)),
         beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", $('input[name=csrfmiddlewaretoken]').val());
         },
@@ -74,7 +80,7 @@ $('body').on('click', '.click-area', function (e) {
         url: window.location.href,
         data: {
             requestType: 'found',
-            selected: JSON.stringify(getRowValues(this)),
+            selected: JSON.stringify(getRowPK(this)),
             csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
             action: 'post'
         },
@@ -89,12 +95,48 @@ $('body').on('click', '.click-area', function (e) {
 });
 
 // Edit Item
+// display edit form
 $('body').on('click', '.edit-button', function (e) {
+    
+    fetch.stop();
+
     var parentRow = $(this).closest('tr')[0];
-    var input = $('<input class="form-control">').val("$(this).text()");
-    $(parentRow).children(':eq(0), :eq(1)').replaceWith(input);
-    repeater.pause();
+    var name_input = $('<td class="click-area break-words"><input class="form-control edit-name"></td>');
+    $(name_input).find('input').val($(parentRow).children(':eq(0)').text());
+    $(parentRow).children(':eq(0)').replaceWith(name_input);
+
+    var quantity_input = $('<td class="click-area break-words"><input class="form-control edit-quantity"></td>')
+    $(quantity_input).find('input').val($(parentRow).children(':eq(1)').text());
+    $(parentRow).children(':eq(1)').replaceWith(quantity_input);
+
+    var button = $('<td><input class="update-item" type="submit" value="Update"></td>')
+    $(parentRow).children(':eq(2)').replaceWith(button);
+
 });
-
-
+// send update to server
+$('body').on('click', 'input.update-item', function (e) {
+    var $_this = $(this);
+    $.ajax({
+        type: 'POST',
+        url: window.location.href,
+        data: {
+            requestType: 'update',
+            updated_fields: JSON.stringify(getUpdatedInfo(this)),
+            csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+            action: 'post'
+        },
+        success: function (response) {
+            var parentRow = $_this.closest('tr')[0];
+            $(parentRow).replaceWith(response.html);
+            fetch.run();
+        },
+        error: function (data) {
+            if (data.responseText) {
+                alert(JSON.parse(data.responseText).message);
+            } else {
+                alert('Adding item failed. Uncaught error.');
+            }
+        }
+    });
+});
 // List actions end

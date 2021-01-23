@@ -200,37 +200,67 @@ class ShoppingListDisplay(LoginRequiredMixin, UserCanInteractWithListMixin, Deta
         return context
 
 
-class FetchListView(LoginRequiredMixin, DetailView):
+class FetchListView(LoginRequiredMixin, UpdateView):
 
     model = List
-
-    def get(self, request, *args, **kwargs):
+    
+    def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        context = {
-            'items': Item.objects.filter(parent_list=self.object).order_by('date_created')
-        }
+        raw_items = request.POST.get('items').replace(u'\xa0', u' ') 
+        
+        browser_items = {int(k): v for k, v in json.loads(raw_items).items()}
+        browser_pk = browser_items.keys()
 
-        data = {
-            'shopping_list': render_to_string('shopping_list_table.html', context, request)
-        }
-        return JsonResponse(data)
+        i = Item.objects.filter(parent_list=self.object).order_by('date_created')
+        db_items = {}
+        for item in i:
+            db_items[item.pk] = {
+                'name': item.name,
+                'quantity': item.quantity,
+                'found': item.found,
+            }
+        db_pk = db_items.keys()
+
+        changes = {}
+        
+        # find items added to database
+        new_items = Item.objects.filter(pk__in=list(set(db_pk) - set(browser_pk)))
+        
+        # if new items are found then generate html for each new entry
+        c = {}
+        for i in new_items:
+            ctx = {'item': i}
+            html = render_to_string('list_item.html', ctx, request)
+            c[i.pk] = {'html': html}
+        changes['new'] = c
+
+        # find items removed from database
+        changes['removed'] = {x: 'remove' for x in list(set(browser_pk) - set(db_pk))}
+
+        # find updated items
+        updated = {}
+        for k, v in db_items.items():
+            try:
+                if str(v) != str(browser_items[k]):
+                    updated[k] = v
+            except KeyError: # catch keyerror in case any new stuff has been added
+                pass 
+        changes['updated'] = updated
+
+        return JsonResponse({'changes': changes})
 
 
 class ShoppingListAddItem(SingleObjectMixin, UserCanInteractWithListMixin, FormView):
     template_name = 'detail.html'
     form_class = NewItemForm
     model = List
-    stopwords = Stopword.objects.all().values_list('stopword', flat=True)
 
     def post(self, request, *args, **kwargs):
         new_item_data = json.loads(request.POST.get('selected'))
         item = new_item_data['itemName'].replace(u'\xa0', u' ')
         quantity = new_item_data['quantity'].replace(u'\xa0', u' ')
 
-        # Check if the supplied quantity is a disallowed word, based
-        # on the stopwords defined in the Stopwords DB table.
-        # Return an error if so.
-        if self._is_stopword(quantity):
+        if _is_stopword(quantity):
             message = random.choice(STOPWORD_MESSAGES)
             return JsonResponse({'message': message}, status=500)
 
@@ -241,51 +271,50 @@ class ShoppingListAddItem(SingleObjectMixin, UserCanInteractWithListMixin, FormV
             found=False,
         )
         i.save()
+
         data = {
-            'item': item.replace(' ', '&nbsp;'),
-            'quantity': quantity.replace(' ', '&nbsp;'),
-            'date_created': naturaltime(i.date_created),
-            'timestamp': i.date_created.isoformat(),
+            'new_item': render_to_string('list_item.html', {'item': i}, request),
         }
         return JsonResponse(data)
 
 
-    def _is_stopword(self, word):
-        """
-            Takes the entered word and adds spaces between
-            every letter. It then performs a comparison against
-            all of the stopwords. If a similarity of 95% or 
-            greater is found then disallow the word.
+def _is_stopword(word):
+    """
+        Takes the entered word and adds spaces between
+        every letter. It then performs a comparison against
+        all of the stopwords. If a similarity of 95% or 
+        greater is found then disallow the word.
 
-            Args:
-                wrd = the user-entered value to test (str)
+        Args:
+            wrd = the user-entered value to test (str)
 
-            Returns:
-                True: if the user-entered value is disallowed
-                False: if the user-entered value is allowed
-        """
+        Returns:
+            True: if the user-entered value is disallowed
+            False: if the user-entered value is allowed
+    """
+    stopwords = Stopword.objects.all().values_list('stopword', flat=True)
 
-        wrd = word
+    wrd = word
 
-        # if wrd is a number then return False, numbers cant
-        # be disallowed
-        if wrd.isdigit():
-            return False
-
-        # add spaces between each character
-        wrd = ' '.join(wrd.lower())
-        
-        # if a direct match is found then return True
-        if wrd in self.stopwords:
-            return True
-
-        # otherwise loop through stopwords looking for similarity
-        for s in self.stopwords:
-            ratio = fuzz.token_set_ratio(s, wrd)
-            if ratio >= 95:
-                print(f'Stopword detected: {word} ({ratio}%)')
-                return True
+    # if wrd is a number then return False, numbers cant
+    # be disallowed
+    if wrd.isdigit():
         return False
+
+    # add spaces between each character
+    wrd = ' '.join(wrd.lower())
+    
+    # if a direct match is found then return True
+    if wrd in stopwords:
+        return True
+
+    # otherwise loop through stopwords looking for similarity
+    for s in stopwords:
+        ratio = fuzz.token_set_ratio(s, wrd)
+        if ratio >= 95:
+            print(f'Stopword detected: {word} ({ratio}%)')
+            return True
+    return False
 
 
 class ShoppingListRemoveItem(UserCanInteractWithListMixin, DeleteView):
@@ -294,14 +323,9 @@ class ShoppingListRemoveItem(UserCanInteractWithListMixin, DeleteView):
     model = List
 
     def delete(self, request, *args, **kwargs):
-        item_name = request.GET['itemName'].replace(u'\xa0', u' ')
-        quantity = request.GET['quantity'].replace(u'\xa0', u' ')
-        timestamp = request.GET['timestamp']
+        item_pk = request.GET['pk'].replace(u'\xa0', u' ')
         i = Item.objects.get(
-            name=item_name,
-            quantity=quantity,
-            parent_list=self.get_object(),
-            date_created=timestamp,
+            pk=item_pk
         )
         i.delete()
         payload = {'delete': 'ok'}
@@ -314,18 +338,37 @@ class ShoppingListFoundItem(UserCanInteractWithListMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         selected_item = json.loads(request.POST.get('selected'))
-        item_name = selected_item['itemName'].replace(u'\xa0', u' ')
-        quantity = selected_item['quantity'].replace(u'\xa0', u' ')
-        timestamp = selected_item['timestamp']
+        item_pk = selected_item['pk']
         i = Item.objects.get(
-            name=item_name,
-            quantity=quantity,
-            parent_list=self.get_object(),
-            date_created=timestamp,
+            pk=item_pk
         )
         i.found = not i.found
         i.save()
         payload = {'update': 'ok'}
+        return JsonResponse(payload)
+
+
+class ShoppingListUpdateItem(UserCanInteractWithListMixin, UpdateView):
+    template_name = 'detail.html'
+    model = List
+
+    def post(self, request, *args, **kwargs):
+        new_data = json.loads(request.POST.get('updated_fields'))
+        pk = new_data['pk']
+        
+        if _is_stopword(new_data['quantity']):
+            message = random.choice(STOPWORD_MESSAGES)
+            return JsonResponse({'message': message}, status=500)
+
+        item = Item.objects.get(pk=pk)
+        item.name = new_data['name']
+        item.quantity = new_data['quantity']
+        item.save()
+        
+        ctx = {'item': item}
+        html = render_to_string('list_item.html', ctx, request)
+
+        payload = {'html': html, 'update': 'ok'}
         return JsonResponse(payload)
 
 
@@ -343,6 +386,10 @@ class ShoppingListDetailView(View):
             view = ShoppingListFoundItem.as_view()
         elif request_type == 'invite':
             view = InviteToListView.as_view()
+        elif request_type == 'fetch':
+            view = FetchListView.as_view()
+        elif request_type == 'update':
+            view = ShoppingListUpdateItem.as_view()
         return view(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):

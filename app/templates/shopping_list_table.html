@@ -1,6 +1,3 @@
-{% load humanize %}
-{% load spacer %}
-
 <table class="table" id='shopping-list'>
 
     <thead>
@@ -14,20 +11,7 @@
 
     <tbody>
         {% for item in items %}
-        {% if item.found %}<tr class="found-item">{% else %}<tr>{% endif %}
-            <td class="click-area break-words">{{ item.name|spacer }}</td>
-            <td class="click-area break-words">{{ item.quantity|spacer }}</td>
-            <td class="click-area break-words hide-mobile"><small class="text-muted">{{ item.date_created|naturaltime }}</small></td>
-            <td>
-                <div class="edit-button">
-                    <i class="fas fa-edit"></i>
-                </div>
-                <div class="close-button">
-                    <i class="fas fa-times"></i>
-                </div>
-            </td>
-            <td style="display:none;">{{ item.date_created|date:"c" }}</td>
-        </tr>
+            {% include 'list_item.html' %}
         {% endfor %}
     </tbody>
 </table>

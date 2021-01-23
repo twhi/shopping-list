@@ -1,0 +1,16 @@
+{% load humanize %}
+{% load spacer %}
+{% if item.found %}<tr class="found-item" data-pk="{{ item.pk }}">{% else %}
+<tr data-pk="{{ item.pk }}">{% endif %}
+    <td class="click-area break-words item-name">{{ item.name|spacer }}</td>
+    <td class="click-area break-words item-quantity">{{ item.quantity|spacer }}</td>
+    <td class="click-area break-words item-created hide-mobile"><small class="text-muted">{{ item.date_created|naturaltime }}</small></td>
+    <td>
+        <div class="edit-button">
+            <i class="fas fa-edit"></i>
+        </div>
+        <div class="close-button">
+            <i class="fas fa-times"></i>
+        </div>
+    </td>
+</tr>

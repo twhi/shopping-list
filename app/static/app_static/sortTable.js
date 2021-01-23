@@ -2,11 +2,10 @@ $(document).on('click', '.sort-title', function(e) {
     var table = $(this).parents('table').eq(0)
     var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()))
 
-    var allSortIcons = table.find('i');
+    // update sorting icons
+    var allSortIcons = table.find('th i');
     allSortIcons.removeClass('fa-sort fa-sort-down fa-sort-up');
-
     var sortIcon = $(this).find('i');
-
     var otherSortIcons = allSortIcons.not(sortIcon);
     otherSortIcons.addClass('fa-sort');
 
